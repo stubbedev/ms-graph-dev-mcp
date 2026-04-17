@@ -6,3 +6,4 @@ export { groupsTools } from "./groups.js";
 export { notesTools } from "./notes.js";
 export { tasksTools } from "./tasks.js";
 export { sitesTools } from "./sites.js";
+export { subscriptionsTools } from "./subscriptions.js";

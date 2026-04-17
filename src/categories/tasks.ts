@@ -10,6 +10,26 @@ function buildHeaders(): Record<string, string> {
   };
 }
 
+const PLANNER_READ_PERMISSIONS = {
+  delegated: ["Tasks.Read"],
+  application: ["Tasks.Read.All"],
+};
+
+const PLANNER_WRITE_PERMISSIONS = {
+  delegated: ["Tasks.ReadWrite"],
+  application: ["Tasks.ReadWrite.All"],
+};
+
+const TODO_READ_PERMISSIONS = {
+  delegated: ["Tasks.Read"],
+  application: ["Tasks.Read.All"],
+};
+
+const TODO_WRITE_PERMISSIONS = {
+  delegated: ["Tasks.ReadWrite"],
+  application: ["Tasks.ReadWrite.All"],
+};
+
 export const tasksTools: ToolDefinition[] = [
   {
     name: "graph_tasks_list_plans",
@@ -30,6 +50,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `List Planner plans for group ${args.groupId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannergroup-list-plans",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: PLANNER_READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -52,6 +74,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `Get plan ${args.planId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannerplan-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst plan = await response.json();`,
+        requiredPermissions: PLANNER_READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -76,6 +100,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `Create plan '${args.title}' owned by group ${args.ownerId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/planner-post-plans",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});\nconst plan = await response.json();`,
+        requiredPermissions: PLANNER_WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -98,6 +124,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `List tasks in plan ${args.planId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannerplan-list-tasks",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: PLANNER_READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -120,6 +148,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `Get task ${args.taskId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannertask-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst task = await response.json();`,
+        requiredPermissions: PLANNER_READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -160,6 +190,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `Create task '${args.title}' in plan ${args.planId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/planner-post-tasks",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst task = await response.json();`,
+        requiredPermissions: PLANNER_WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -202,6 +234,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `Update task ${args.taskId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannertask-update",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'PATCH',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json', 'If-Match': '${args.eTag}' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});`,
+        requiredPermissions: PLANNER_WRITE_PERMISSIONS,
+        notes: "The If-Match eTag header is required. Retrieve the task first to get the current eTag value. Submitting a stale eTag returns 412 Precondition Failed.",
       };
     },
   },
@@ -228,6 +262,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `Delete task ${args.taskId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannertask-delete",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}', 'If-Match': '${args.eTag}' }\n});`,
+        requiredPermissions: PLANNER_WRITE_PERMISSIONS,
+        notes: "The If-Match eTag header is required. Retrieve the task first to get the current eTag value.",
       };
     },
   },
@@ -250,6 +286,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `List To Do task lists for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/todo-list-lists",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: TODO_READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -285,6 +323,8 @@ export const tasksTools: ToolDefinition[] = [
         description: `Create To Do task '${args.title}' in list ${args.listId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/todotasklist-post-tasks",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst task = await response.json();`,
+        requiredPermissions: TODO_WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },

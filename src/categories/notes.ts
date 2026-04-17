@@ -10,6 +10,16 @@ function buildHeaders(): Record<string, string> {
   };
 }
 
+const READ_PERMISSIONS = {
+  delegated: ["Notes.Read", "Notes.ReadWrite"],
+  application: ["Notes.Read.All", "Notes.ReadWrite.All"],
+};
+
+const WRITE_PERMISSIONS = {
+  delegated: ["Notes.ReadWrite"],
+  application: ["Notes.ReadWrite.All"],
+};
+
 export const notesTools: ToolDefinition[] = [
   {
     name: "graph_notes_list_notebooks",
@@ -30,6 +40,8 @@ export const notesTools: ToolDefinition[] = [
         description: `List notebooks for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/onenote-list-notebooks",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -53,6 +65,8 @@ export const notesTools: ToolDefinition[] = [
         description: `Get notebook ${args.notebookId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/notebook-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst notebook = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -77,6 +91,8 @@ export const notesTools: ToolDefinition[] = [
         description: `Create notebook '${args.displayName}' for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/onenote-post-notebooks",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});\nconst notebook = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -100,6 +116,8 @@ export const notesTools: ToolDefinition[] = [
         description: `List sections in notebook ${args.notebookId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/notebook-list-sections",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -125,6 +143,8 @@ export const notesTools: ToolDefinition[] = [
         description: `Create section '${args.displayName}' in notebook ${args.notebookId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/notebook-post-sections",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});\nconst section = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -148,6 +168,8 @@ export const notesTools: ToolDefinition[] = [
         description: `List pages in section ${args.sectionId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/section-list-pages",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -177,6 +199,8 @@ export const notesTools: ToolDefinition[] = [
         description: `Create page '${args.title}' in section ${args.sectionId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/section-post-pages",
         codeExample: `const html = \`${htmlBody}\`;\nconst response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'text/html' },\n  body: html\n});\nconst page = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -203,6 +227,8 @@ export const notesTools: ToolDefinition[] = [
         description: `Get HTML content of page ${args.pageId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/page-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}', 'Accept': 'text/html' }\n});\nconst html = await response.text();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },

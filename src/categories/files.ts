@@ -16,6 +16,16 @@ function driveBasePath(args: { driveId?: string; userId?: string }): string {
   return "/me/drive";
 }
 
+const READ_PERMISSIONS = {
+  delegated: ["Files.Read", "Files.Read.All", "Sites.Read.All"],
+  application: ["Files.Read.All", "Sites.Read.All"],
+};
+
+const WRITE_PERMISSIONS = {
+  delegated: ["Files.ReadWrite", "Files.ReadWrite.All", "Sites.ReadWrite.All"],
+  application: ["Files.ReadWrite.All", "Sites.ReadWrite.All"],
+};
+
 export const filesTools: ToolDefinition[] = [
   {
     name: "graph_files_list_children",
@@ -40,6 +50,8 @@ export const filesTools: ToolDefinition[] = [
         description: "List items inside a drive folder.",
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-list-children",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -65,6 +77,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Get drive item ${args.itemId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst item = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -96,6 +110,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Upload file '${args.fileName}' to parent item ${parent}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-put-content",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'PUT',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': '${args.contentType ?? "application/octet-stream"}' },\n  body: fileBuffer\n});\nconst item = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: "Only supports files under 4 MB. For larger files use graph_files_create_upload_session to get a resumable upload URL, then PUT each chunk to that URL.",
       };
     },
   },
@@ -128,6 +144,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Create an upload session for large file '${args.fileName}'.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-createuploadsession",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst session = await response.json();\n// Then upload chunks to session.uploadUrl`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -159,6 +177,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Create folder '${args.folderName}'.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-post-children",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst folder = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -183,6 +203,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Delete drive item ${args.itemId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-delete",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}' }\n});`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -209,6 +231,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Move item ${args.itemId} to parent ${args.destinationParentId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-move",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'PATCH',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});\nconst item = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -237,6 +261,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Copy item ${args.itemId} to parent ${args.destinationParentId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-copy",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});\n// Returns 202 Accepted with monitor URL`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: "Returns 202 Accepted immediately. Poll the URL in the Location response header to track copy completion — the copy may take time for large files.",
       };
     },
   },
@@ -261,6 +287,8 @@ export const filesTools: ToolDefinition[] = [
         description: `Search for files matching '${args.query}'.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-search",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -285,6 +313,43 @@ export const filesTools: ToolDefinition[] = [
         description: `Get the download URL for item ${args.itemId}. Use the '@microsoft.graph.downloadUrl' field from the response.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst item = await response.json();\nconst downloadUrl = item['@microsoft.graph.downloadUrl'];`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
+      };
+    },
+  },
+  {
+    name: "graph_files_get_delta",
+    description: "Get changes to a drive (OneDrive or SharePoint document library) since a previous delta token — returns only added, modified, or deleted items.",
+    category: "files",
+    zodShape: {
+      deltaToken: z.string().optional(),
+      driveId: z.string().optional(),
+      userId: z.string().optional(),
+    },
+    handler: (args: { deltaToken?: string; driveId?: string; userId?: string }) => {
+      let endpoint: string;
+      if (args.deltaToken && args.deltaToken.startsWith("http")) {
+        endpoint = args.deltaToken;
+      } else {
+        const base = driveBasePath(args);
+        endpoint = `${BASE}${base}/root/delta`;
+        if (args.deltaToken) {
+          endpoint += `?$deltatoken=${args.deltaToken}`;
+        }
+      }
+      return {
+        endpoint,
+        method: "GET",
+        headers: buildHeaders(),
+        pathParams: {},
+        queryParams: {},
+        body: null,
+        description: "Get delta changes to drive items since the last sync.",
+        docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-delta",
+        codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();\n// Store data['@odata.deltaLink'] for next call`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: "On first call, returns all drive items plus @odata.deltaLink at the end. Use that token for subsequent calls to get only changes. Items with @removed annotation have been deleted.",
       };
     },
   },

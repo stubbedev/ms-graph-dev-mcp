@@ -10,6 +10,16 @@ function buildHeaders(): Record<string, string> {
   };
 }
 
+const READ_PERMISSIONS = {
+  delegated: ["Calendars.Read"],
+  application: ["Calendars.Read"],
+};
+
+const READWRITE_PERMISSIONS = {
+  delegated: ["Calendars.ReadWrite"],
+  application: ["Calendars.ReadWrite"],
+};
+
 export const calendarTools: ToolDefinition[] = [
   {
     name: "graph_calendar_list_events",
@@ -38,6 +48,8 @@ export const calendarTools: ToolDefinition[] = [
         description: `List calendar events for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-calendarview",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -61,6 +73,8 @@ export const calendarTools: ToolDefinition[] = [
         description: `Get event ${args.eventId} for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/event-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst event = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -116,6 +130,8 @@ export const calendarTools: ToolDefinition[] = [
         description: `Create calendar event '${args.subject}' for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-events",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst event = await response.json();`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -164,6 +180,8 @@ export const calendarTools: ToolDefinition[] = [
         description: `Update event ${args.eventId} for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/event-update",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'PATCH',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst updated = await response.json();`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -187,6 +205,8 @@ export const calendarTools: ToolDefinition[] = [
         description: `Delete event ${args.eventId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/event-delete",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}' }\n});`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -217,6 +237,8 @@ export const calendarTools: ToolDefinition[] = [
         description: "Find meeting time suggestions for a set of attendees.",
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-findmeetingtimes",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst suggestions = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -248,6 +270,44 @@ export const calendarTools: ToolDefinition[] = [
         description: "Get free/busy schedule for the specified email addresses.",
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/calendar-getschedule",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst schedule = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
+      };
+    },
+  },
+  {
+    name: "graph_calendar_get_delta",
+    description: "Get changes to calendar events since a previous delta token — returns only new, updated, or deleted events.",
+    category: "calendar",
+    zodShape: {
+      userId: z.string(),
+      startDateTime: z.string().optional(),
+      endDateTime: z.string().optional(),
+      deltaToken: z.string().optional(),
+    },
+    handler: (args: { userId: string; startDateTime?: string; endDateTime?: string; deltaToken?: string }) => {
+      let endpoint: string;
+      if (args.deltaToken) {
+        endpoint = args.deltaToken;
+      } else {
+        const params: string[] = [];
+        if (args.startDateTime) params.push(`startDateTime=${args.startDateTime}`);
+        if (args.endDateTime) params.push(`endDateTime=${args.endDateTime}`);
+        const qs = params.length ? `?${params.join("&")}` : "";
+        endpoint = `${BASE}/users/${args.userId}/calendarView/delta${qs}`;
+      }
+      return {
+        endpoint,
+        method: "GET",
+        headers: buildHeaders(),
+        pathParams: { userId: args.userId },
+        queryParams: {},
+        body: null,
+        description: `Get delta changes to calendar events for user ${args.userId}.`,
+        docsUrl: "https://learn.microsoft.com/en-us/graph/api/event-delta",
+        codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();\n// Store data['@odata.deltaLink'] for next call`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: "startDateTime and endDateTime are required on the initial call to define the time window. They are not needed on subsequent calls using the deltaToken. Events outside the window are not tracked.",
       };
     },
   },

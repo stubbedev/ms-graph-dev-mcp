@@ -14,6 +14,21 @@ function buildRecipients(emails: string[]): Array<{ emailAddress: { address: str
   return emails.map((e) => ({ emailAddress: { address: e } }));
 }
 
+const READ_PERMISSIONS = {
+  delegated: ["Mail.Read", "Mail.ReadBasic"],
+  application: ["Mail.Read"],
+};
+
+const SEND_PERMISSIONS = {
+  delegated: ["Mail.Send"],
+  application: ["Mail.Send"],
+};
+
+const READWRITE_PERMISSIONS = {
+  delegated: ["Mail.ReadWrite"],
+  application: ["Mail.ReadWrite"],
+};
+
 export const mailTools: ToolDefinition[] = [
   {
     name: "graph_mail_list_messages",
@@ -42,6 +57,8 @@ export const mailTools: ToolDefinition[] = [
         description: `List messages for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-messages",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -65,6 +82,8 @@ export const mailTools: ToolDefinition[] = [
         description: `Get message ${args.messageId} for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst message = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -108,6 +127,8 @@ export const mailTools: ToolDefinition[] = [
         description: `Send an email on behalf of ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-sendmail",
         codeExample: `await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(requestBody, null, 2)})\n});`,
+        requiredPermissions: SEND_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -148,6 +169,8 @@ export const mailTools: ToolDefinition[] = [
         description: `Create a draft message for ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-messages",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(requestBody, null, 2)})\n});\nconst draft = await response.json();`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -173,6 +196,8 @@ export const mailTools: ToolDefinition[] = [
         description: `Reply to message ${args.messageId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-reply",
         codeExample: `await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});`,
+        requiredPermissions: SEND_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -196,6 +221,8 @@ export const mailTools: ToolDefinition[] = [
         description: `Delete message ${args.messageId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-delete",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}' }\n});`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -218,6 +245,8 @@ export const mailTools: ToolDefinition[] = [
         description: `List mail folders for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-mailfolders",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -243,6 +272,39 @@ export const mailTools: ToolDefinition[] = [
         description: `Move message ${args.messageId} to folder ${args.destinationFolderId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-move",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});\nconst movedMessage = await response.json();`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
+      };
+    },
+  },
+  {
+    name: "graph_mail_get_delta",
+    description: "Get changes to messages in a mail folder since a previous delta token — returns only new, updated, or deleted messages.",
+    category: "mail",
+    zodShape: {
+      userId: z.string(),
+      folderId: z.string().optional().describe("Mail folder ID or well-known name like 'inbox'. Defaults to inbox."),
+      deltaToken: z.string().optional(),
+    },
+    handler: (args: { userId: string; folderId?: string; deltaToken?: string }) => {
+      let endpoint: string;
+      if (args.deltaToken) {
+        endpoint = args.deltaToken;
+      } else {
+        endpoint = `${BASE}/users/${args.userId}/mailFolders/${args.folderId ?? "inbox"}/messages/delta`;
+      }
+      return {
+        endpoint,
+        method: "GET",
+        headers: buildHeaders(),
+        pathParams: { userId: args.userId },
+        queryParams: {},
+        body: null,
+        description: `Get delta changes to messages in folder ${args.folderId ?? "inbox"} for user ${args.userId}.`,
+        docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-delta",
+        codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();\n// Store data['@odata.deltaLink'] for next call`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: "Store @odata.deltaLink between syncs. Pass it back as deltaToken to receive only changes since last sync. @removed items have been deleted.",
       };
     },
   },

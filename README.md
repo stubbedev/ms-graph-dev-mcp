@@ -2,62 +2,73 @@
 
 An MCP server that helps you construct and validate [Microsoft Graph REST API](https://learn.microsoft.com/en-us/graph/api/overview) calls — no authentication required in the server itself.
 
-Tools are loaded on demand by resource category. Ask about files and the file tools appear. Ask about mail and the mail tools appear. The server starts lean and grows with your needs.
+Tools are loaded on demand by resource category. Ask about SharePoint and the sites tools appear. Ask about files and the OneDrive tools appear. The server starts lean and grows with your needs, and always knows the required permissions for every operation.
 
 ## What it does
 
 - Constructs valid Graph API request URLs, methods, headers, and bodies
 - Validates required and optional parameters
-- Returns ready-to-use code examples
+- Returns required Microsoft Graph permissions (delegated and application) for every operation
+- Returns ready-to-use fetch code examples
 - Links to official Microsoft documentation for every operation
-- Loads tool categories dynamically — only what you need
+- Explains cross-cutting concepts: pagination, OData queries, throttling, delta sync, batching, and auth
+- Loads resource categories on demand — only what you need
 
-### Available categories
+## Tools
 
-| Category | What you get |
-|---|---|
-| **users** | Get, list, create, update, delete users; manager and direct reports |
-| **files** | OneDrive/SharePoint drive operations: list, upload, download, move, copy, search |
-| **mail** | Read, send, draft, reply, move messages; list folders |
-| **calendar** | Events CRUD, find meeting times, free/busy schedule |
-| **groups** | Microsoft 365 and security groups; members and owners |
-| **notes** | OneNote notebooks, sections, and pages |
-| **tasks** | Planner plans and tasks; Microsoft To Do lists and tasks |
-| **sites** | SharePoint sites, lists, items, and columns |
+### Always available
 
-### Bootstrap tools (always available)
+These tools are loaded immediately — no setup required.
 
 | Tool | Description |
 |---|---|
-| `list_categories` | Shows all categories and which ones are currently loaded |
-| `load_category` | Loads tools for a category; triggers `tools/list_changed` |
-| `search_graph_api` | Keyword search across common Graph API operations |
+| `list_categories` | List all resource categories and which are currently loaded |
+| `load_category` | Load tools for a category; triggers `tools/list_changed` |
+| `search_graph_api` | Search Graph API endpoints by keyword; returns a `suggestedCategory` to load |
+| `graph_build_batch` | Build a valid `/$batch` request body from up to 20 operations |
+| `graph_explain_pagination` | How `@odata.nextLink` works; iterate all pages of results |
+| `graph_explain_odata` | `$filter`, `$select`, `$expand`, `$orderby`, `$count`, `$search` with examples |
+| `graph_explain_throttling` | 429 handling, `Retry-After`, exponential backoff pattern |
+| `graph_explain_delta` | Delta tokens, change tracking, initial sync vs incremental sync |
+| `graph_explain_batch` | JSON batching, `dependsOn`, response handling |
+| `graph_explain_permissions` | Delegated vs application permissions, consent flows, token acquisition |
+
+### Resource categories (loaded on demand)
+
+| Category | Tools | What you get |
+|---|---|---|
+| **users** | 8 | Get, list, create, update, delete users; manager; direct reports; delta sync |
+| **files** | 11 | OneDrive/SharePoint document library: list, get, upload (<4MB and resumable), create folder, delete, move, copy, search, download URL, delta sync |
+| **mail** | 9 | List and get messages, send, create draft, reply, delete, move, list folders, delta sync |
+| **calendar** | 8 | List, get, create, update, delete events; find meeting times; get free/busy schedule; delta sync |
+| **groups** | 8 | List, get, create, delete groups; list and manage members and owners |
+| **notes** | 8 | OneNote notebooks, sections, pages; create and read content |
+| **tasks** | 10 | Planner plans and tasks (CRUD); Microsoft To Do lists and tasks |
+| **sites** | 12 | SharePoint sites; lists; list items (CRUD); columns |
+| **subscriptions** | 5 | Create, list, get, delete, and renew webhook change notification subscriptions |
 
 ### Example tool output
 
-Every tool returns a structured object:
+Every tool returns a structured object with the full request details and required permissions:
 
 ```json
 {
-  "endpoint": "https://graph.microsoft.com/v1.0/users/{userId}/messages",
-  "method": "POST",
+  "endpoint": "https://graph.microsoft.com/v1.0/sites/{siteId}/lists/{listId}/items?expand=fields",
+  "method": "GET",
   "headers": {
-    "Authorization": "Bearer {token}",
-    "Content-Type": "application/json"
+    "Authorization": "Bearer {token}"
   },
-  "pathParams": { "userId": "me" },
-  "queryParams": {},
-  "body": {
-    "message": {
-      "subject": "Hello",
-      "body": { "contentType": "HTML", "content": "<p>Hello world</p>" },
-      "toRecipients": [{ "emailAddress": { "address": "user@example.com" } }]
-    },
-    "saveToSentItems": true
+  "pathParams": { "siteId": "contoso.sharepoint.com,abc123", "listId": "list456" },
+  "queryParams": { "expand": "fields" },
+  "body": null,
+  "description": "List items in list list456.",
+  "docsUrl": "https://learn.microsoft.com/en-us/graph/api/listitem-list",
+  "codeExample": "const response = await fetch('...', { method: 'GET', headers: { Authorization: 'Bearer {token}' } });\nconst data = await response.json();",
+  "requiredPermissions": {
+    "delegated": ["Sites.Read.All"],
+    "application": ["Sites.Read.All"]
   },
-  "description": "Send an email message on behalf of a user",
-  "docsUrl": "https://learn.microsoft.com/en-us/graph/api/user-sendmail",
-  "codeExample": "const response = await fetch('https://graph.microsoft.com/v1.0/users/me/messages', { method: 'POST', headers: { Authorization: 'Bearer {token}', 'Content-Type': 'application/json' }, body: JSON.stringify({...}) });"
+  "notes": "Column values are returned under the 'fields' property. This request already includes ?expand=fields. Without it the items array would contain only metadata, not column data."
 }
 ```
 

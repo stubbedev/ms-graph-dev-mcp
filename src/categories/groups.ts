@@ -10,6 +10,26 @@ function buildHeaders(): Record<string, string> {
   };
 }
 
+const READ_PERMISSIONS = {
+  delegated: ["Group.Read.All", "Directory.Read.All"],
+  application: ["Group.Read.All", "Directory.Read.All"],
+};
+
+const READWRITE_PERMISSIONS = {
+  delegated: ["Group.ReadWrite.All"],
+  application: ["Group.ReadWrite.All"],
+};
+
+const MEMBER_READ_PERMISSIONS = {
+  delegated: ["GroupMember.Read.All", "Group.Read.All"],
+  application: ["GroupMember.Read.All", "Group.Read.All"],
+};
+
+const MEMBER_READWRITE_PERMISSIONS = {
+  delegated: ["GroupMember.ReadWrite.All", "Group.ReadWrite.All"],
+  application: ["GroupMember.ReadWrite.All", "Group.ReadWrite.All"],
+};
+
 export const groupsTools: ToolDefinition[] = [
   {
     name: "graph_groups_list",
@@ -37,6 +57,8 @@ export const groupsTools: ToolDefinition[] = [
         description: "List all groups in the tenant.",
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -61,6 +83,8 @@ export const groupsTools: ToolDefinition[] = [
         description: `Get group ${args.groupId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst group = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -103,6 +127,8 @@ export const groupsTools: ToolDefinition[] = [
         description: `Create group '${args.displayName}'.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-post-groups",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst group = await response.json();`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -125,6 +151,8 @@ export const groupsTools: ToolDefinition[] = [
         description: `Delete group ${args.groupId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-delete",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}' }\n});`,
+        requiredPermissions: READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -147,6 +175,8 @@ export const groupsTools: ToolDefinition[] = [
         description: `List members of group ${args.groupId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list-members",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: MEMBER_READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -171,6 +201,8 @@ export const groupsTools: ToolDefinition[] = [
         description: `Add user ${args.userId} to group ${args.groupId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-post-members",
         codeExample: `await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body)})\n});`,
+        requiredPermissions: MEMBER_READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -194,6 +226,8 @@ export const groupsTools: ToolDefinition[] = [
         description: `Remove user ${args.userId} from group ${args.groupId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-delete-members",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}' }\n});`,
+        requiredPermissions: MEMBER_READWRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -216,6 +250,8 @@ export const groupsTools: ToolDefinition[] = [
         description: `List owners of group ${args.groupId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list-owners",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: MEMBER_READ_PERMISSIONS,
+        notes: null,
       };
     },
   },

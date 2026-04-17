@@ -32,6 +32,11 @@ export const usersTools: ToolDefinition[] = [
         description: `Get properties for user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst user = await response.json();`,
+        requiredPermissions: {
+          delegated: ["User.Read", "User.Read.All", "Directory.Read.All"],
+          application: ["User.Read.All", "Directory.Read.All"],
+        },
+        notes: null,
       };
     },
   },
@@ -63,6 +68,11 @@ export const usersTools: ToolDefinition[] = [
         description: "List users in the tenant.",
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: {
+          delegated: ["User.Read.All", "Directory.Read.All"],
+          application: ["User.Read.All", "Directory.Read.All"],
+        },
+        notes: null,
       };
     },
   },
@@ -105,6 +115,11 @@ export const usersTools: ToolDefinition[] = [
         description: "Create a new user.",
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-users",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst user = await response.json();`,
+        requiredPermissions: {
+          delegated: ["User.ReadWrite.All"],
+          application: ["User.ReadWrite.All"],
+        },
+        notes: null,
       };
     },
   },
@@ -143,6 +158,11 @@ export const usersTools: ToolDefinition[] = [
         description: `Update properties of the user ${userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-update",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'PATCH',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});`,
+        requiredPermissions: {
+          delegated: ["User.ReadWrite.All"],
+          application: ["User.ReadWrite.All"],
+        },
+        notes: null,
       };
     },
   },
@@ -165,6 +185,11 @@ export const usersTools: ToolDefinition[] = [
         description: `Delete user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-delete",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}' }\n});`,
+        requiredPermissions: {
+          delegated: ["User.ReadWrite.All"],
+          application: ["User.ReadWrite.All"],
+        },
+        notes: null,
       };
     },
   },
@@ -187,6 +212,11 @@ export const usersTools: ToolDefinition[] = [
         description: `Get the manager of user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-manager",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst manager = await response.json();`,
+        requiredPermissions: {
+          delegated: ["User.Read.All", "Directory.Read.All"],
+          application: ["User.Read.All", "Directory.Read.All"],
+        },
+        notes: null,
       };
     },
   },
@@ -209,6 +239,47 @@ export const usersTools: ToolDefinition[] = [
         description: `List the direct reports of user ${args.userId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-directreports",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: {
+          delegated: ["User.Read.All", "Directory.Read.All"],
+          application: ["User.Read.All", "Directory.Read.All"],
+        },
+        notes: null,
+      };
+    },
+  },
+  {
+    name: "graph_users_get_delta",
+    description: "Get changes to users in Azure AD since a previous delta token — returns only added, updated, or deleted users.",
+    category: "users",
+    zodShape: {
+      deltaToken: z.string().optional().describe("Token from previous delta response. Omit for initial sync."),
+      select: z.array(z.string()).optional(),
+    },
+    handler: (args: { deltaToken?: string; select?: string[] }) => {
+      let endpoint: string;
+      if (args.deltaToken) {
+        endpoint = args.deltaToken;
+      } else {
+        const params: string[] = [];
+        if (args.select?.length) params.push(`$select=${args.select.join(",")}`);
+        const qs = params.length ? `?${params.join("&")}` : "";
+        endpoint = `${BASE}/users/delta${qs}`;
+      }
+      return {
+        endpoint,
+        method: "GET",
+        headers: buildHeaders(),
+        pathParams: {},
+        queryParams: args.select?.length ? { $select: args.select.join(",") } : {},
+        body: null,
+        description: "Get delta changes to users since the last sync.",
+        docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-delta",
+        codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();\n// Store data['@odata.deltaLink'] for next call`,
+        requiredPermissions: {
+          delegated: ["User.Read.All", "Directory.Read.All"],
+          application: ["User.Read.All", "Directory.Read.All"],
+        },
+        notes: "On initial call (no deltaToken), response includes all users and ends with @odata.deltaLink. Store that token and pass it on subsequent calls to get only changes. @removed in the response marks deleted users.",
       };
     },
   },

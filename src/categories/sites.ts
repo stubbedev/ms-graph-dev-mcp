@@ -10,6 +10,16 @@ function buildHeaders(): Record<string, string> {
   };
 }
 
+const READ_PERMISSIONS = {
+  delegated: ["Sites.Read.All"],
+  application: ["Sites.Read.All"],
+};
+
+const WRITE_PERMISSIONS = {
+  delegated: ["Sites.ReadWrite.All"],
+  application: ["Sites.ReadWrite.All"],
+};
+
 export const sitesTools: ToolDefinition[] = [
   {
     name: "graph_sites_list",
@@ -31,6 +41,8 @@ export const sitesTools: ToolDefinition[] = [
         description: "List SharePoint sites.",
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/site-list",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -53,6 +65,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Get site ${args.siteId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/site-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst site = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -76,6 +90,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Get site at ${args.hostname}${args.siteRelativePath}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/site-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst site = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -98,6 +114,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `List all lists in site ${args.siteId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/list-list",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -121,6 +139,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Get list ${args.listId} from site ${args.siteId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/list-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst list = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -149,6 +169,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Create list '${args.displayName}' in site ${args.siteId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/list-create",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst list = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -177,6 +199,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `List items in list ${args.listId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-list",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: "Column values are returned under the 'fields' property. This request already includes ?expand=fields. Without it the items array would contain only metadata, not column data.",
       };
     },
   },
@@ -201,6 +225,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Get item ${args.itemId} from list ${args.listId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-get",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst item = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: "Column values are returned under the 'fields' property. This request already includes ?expand=fields.",
       };
     },
   },
@@ -226,6 +252,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Create item in list ${args.listId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-create",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'POST',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(body, null, 2)})\n});\nconst item = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -251,6 +279,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Update fields of item ${args.itemId} in list ${args.listId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-update",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'PATCH',\n  headers: { 'Authorization': 'Bearer {token}', 'Content-Type': 'application/json' },\n  body: JSON.stringify(${JSON.stringify(args.fields, null, 2)})\n});\nconst updated = await response.json();`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -275,6 +305,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `Delete item ${args.itemId} from list ${args.listId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-delete",
         codeExample: `await fetch('${endpoint}', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer {token}' }\n});`,
+        requiredPermissions: WRITE_PERMISSIONS,
+        notes: null,
       };
     },
   },
@@ -298,6 +330,8 @@ export const sitesTools: ToolDefinition[] = [
         description: `List columns in list ${args.listId}.`,
         docsUrl: "https://learn.microsoft.com/en-us/graph/api/list-list-columns",
         codeExample: `const response = await fetch('${endpoint}', {\n  method: 'GET',\n  headers: { 'Authorization': 'Bearer {token}' }\n});\nconst data = await response.json();`,
+        requiredPermissions: READ_PERMISSIONS,
+        notes: null,
       };
     },
   },
