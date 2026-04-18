@@ -218,7 +218,7 @@ export const calendarTools: ToolDefinition[] = [
       userId: z.string().describe("User ID or UPN of the organizer (e.g. user@contoso.com)"),
       attendees: z.array(z.string()).describe("List of attendee email addresses to find a time for"),
       duration: z.string().describe("Required meeting duration — ISO 8601 duration (e.g. 'PT1H' for 1 hour, 'PT30M' for 30 minutes)"),
-      timeConstraints: z.record(z.unknown()).optional().describe("Time constraint object per Graph API schema — restricts the search window"),
+      timeConstraints: z.record(z.string(), z.unknown()).optional().describe("Time constraint object per Graph API schema — restricts the search window"),
     },
     handler: (args: { userId: string; attendees: string[]; duration: string; timeConstraints?: Record<string, unknown> }) => {
       const endpoint = `${BASE}/users/${args.userId}/findMeetingTimes`;

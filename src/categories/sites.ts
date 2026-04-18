@@ -237,7 +237,7 @@ export const sitesTools: ToolDefinition[] = [
     zodShape: {
       siteId: z.string().describe("SharePoint site ID"),
       listId: z.string().describe("SharePoint list ID to create the item in"),
-      fields: z.record(z.unknown()).describe("Column values for the new item — key-value pairs matching column internal names (e.g. { \"Title\": \"My item\", \"Status\": \"Active\" })"),
+      fields: z.record(z.string(), z.unknown()).describe("Column values for the new item — key-value pairs matching column internal names (e.g. { \"Title\": \"My item\", \"Status\": \"Active\" })"),
     },
     handler: (args: { siteId: string; listId: string; fields: Record<string, unknown> }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}/items`;
@@ -265,7 +265,7 @@ export const sitesTools: ToolDefinition[] = [
       siteId: z.string().describe("SharePoint site ID"),
       listId: z.string().describe("SharePoint list ID"),
       itemId: z.string().describe("List item ID to update"),
-      fields: z.record(z.unknown()).describe("Column values to update — key-value pairs matching column internal names (e.g. { \"Status\": \"Completed\" })"),
+      fields: z.record(z.string(), z.unknown()).describe("Column values to update — key-value pairs matching column internal names (e.g. { \"Status\": \"Completed\" })"),
     },
     handler: (args: { siteId: string; listId: string; itemId: string; fields: Record<string, unknown> }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}/items/${args.itemId}/fields`;
