@@ -29,6 +29,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Smoke validate
+        run: npm run smoke:validate
+
       - name: Publish to npm
         run: npm publish --provenance --access public
 
