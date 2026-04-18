@@ -26,7 +26,7 @@ export const sitesTools: ToolDefinition[] = [
     description: "List SharePoint sites",
     category: "sites",
     zodShape: {
-      search: z.string().optional(),
+      search: z.string().optional().describe("Search query to filter sites by name or URL (e.g. 'marketing')"),
     },
     handler: (args: { search?: string }) => {
       const qs = args.search ? `?search=${encodeURIComponent(args.search)}` : "";
@@ -51,7 +51,7 @@ export const sitesTools: ToolDefinition[] = [
     description: "Get a SharePoint site by ID",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
+      siteId: z.string().describe("SharePoint site ID (e.g. contoso.sharepoint.com,guid,guid)"),
     },
     handler: (args: { siteId: string }) => {
       const endpoint = `${BASE}/sites/${args.siteId}`;
@@ -75,8 +75,8 @@ export const sitesTools: ToolDefinition[] = [
     description: "Get a SharePoint site by hostname and relative path",
     category: "sites",
     zodShape: {
-      hostname: z.string().describe("e.g. contoso.sharepoint.com"),
-      siteRelativePath: z.string().describe("e.g. /sites/MySite"),
+      hostname: z.string().describe("SharePoint hostname (e.g. contoso.sharepoint.com)"),
+      siteRelativePath: z.string().describe("Site-relative path (e.g. /sites/MySite)"),
     },
     handler: (args: { hostname: string; siteRelativePath: string }) => {
       const endpoint = `${BASE}/sites/${args.hostname}:${args.siteRelativePath}`;
@@ -100,7 +100,7 @@ export const sitesTools: ToolDefinition[] = [
     description: "List SharePoint lists in a site",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
+      siteId: z.string().describe("SharePoint site ID"),
     },
     handler: (args: { siteId: string }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists`;
@@ -124,8 +124,8 @@ export const sitesTools: ToolDefinition[] = [
     description: "Get a SharePoint list",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      listId: z.string(),
+      siteId: z.string().describe("SharePoint site ID"),
+      listId: z.string().describe("SharePoint list ID"),
     },
     handler: (args: { siteId: string; listId: string }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}`;
@@ -149,9 +149,9 @@ export const sitesTools: ToolDefinition[] = [
     description: "Create a SharePoint list",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      displayName: z.string(),
-      template: z.string().optional().describe("e.g. genericList, documentLibrary"),
+      siteId: z.string().describe("SharePoint site ID to create the list in"),
+      displayName: z.string().describe("Display name for the new list"),
+      template: z.string().optional().describe("List template (e.g. 'genericList', 'documentLibrary'). Defaults to genericList."),
     },
     handler: (args: { siteId: string; displayName: string; template?: string }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists`;
@@ -179,10 +179,10 @@ export const sitesTools: ToolDefinition[] = [
     description: "List items in a SharePoint list",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      listId: z.string(),
-      filter: z.string().optional(),
-      select: z.array(z.string()).optional(),
+      siteId: z.string().describe("SharePoint site ID"),
+      listId: z.string().describe("SharePoint list ID"),
+      filter: z.string().optional().describe("OData $filter expression (e.g. \"fields/Status eq 'Active'\")"),
+      select: z.array(z.string()).optional().describe("Fields to return (e.g. ['id', 'fields/Title', 'fields/Status'])"),
     },
     handler: (args: { siteId: string; listId: string; filter?: string; select?: string[] }) => {
       const params: string[] = ["expand=fields"];
@@ -209,9 +209,9 @@ export const sitesTools: ToolDefinition[] = [
     description: "Get a SharePoint list item",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      listId: z.string(),
-      itemId: z.string(),
+      siteId: z.string().describe("SharePoint site ID"),
+      listId: z.string().describe("SharePoint list ID"),
+      itemId: z.string().describe("List item ID"),
     },
     handler: (args: { siteId: string; listId: string; itemId: string }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}/items/${args.itemId}?expand=fields`;
@@ -235,9 +235,9 @@ export const sitesTools: ToolDefinition[] = [
     description: "Create a SharePoint list item",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      listId: z.string(),
-      fields: z.record(z.unknown()),
+      siteId: z.string().describe("SharePoint site ID"),
+      listId: z.string().describe("SharePoint list ID to create the item in"),
+      fields: z.record(z.unknown()).describe("Column values for the new item — key-value pairs matching column internal names (e.g. { \"Title\": \"My item\", \"Status\": \"Active\" })"),
     },
     handler: (args: { siteId: string; listId: string; fields: Record<string, unknown> }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}/items`;
@@ -262,10 +262,10 @@ export const sitesTools: ToolDefinition[] = [
     description: "Update a SharePoint list item",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      listId: z.string(),
-      itemId: z.string(),
-      fields: z.record(z.unknown()),
+      siteId: z.string().describe("SharePoint site ID"),
+      listId: z.string().describe("SharePoint list ID"),
+      itemId: z.string().describe("List item ID to update"),
+      fields: z.record(z.unknown()).describe("Column values to update — key-value pairs matching column internal names (e.g. { \"Status\": \"Completed\" })"),
     },
     handler: (args: { siteId: string; listId: string; itemId: string; fields: Record<string, unknown> }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}/items/${args.itemId}/fields`;
@@ -289,9 +289,9 @@ export const sitesTools: ToolDefinition[] = [
     description: "Delete a SharePoint list item",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      listId: z.string(),
-      itemId: z.string(),
+      siteId: z.string().describe("SharePoint site ID"),
+      listId: z.string().describe("SharePoint list ID"),
+      itemId: z.string().describe("List item ID to delete"),
     },
     handler: (args: { siteId: string; listId: string; itemId: string }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}/items/${args.itemId}`;
@@ -315,8 +315,8 @@ export const sitesTools: ToolDefinition[] = [
     description: "List columns in a SharePoint list",
     category: "sites",
     zodShape: {
-      siteId: z.string(),
-      listId: z.string(),
+      siteId: z.string().describe("SharePoint site ID"),
+      listId: z.string().describe("SharePoint list ID"),
     },
     handler: (args: { siteId: string; listId: string }) => {
       const endpoint = `${BASE}/sites/${args.siteId}/lists/${args.listId}/columns`;

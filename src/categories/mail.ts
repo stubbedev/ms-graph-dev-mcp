@@ -35,10 +35,10 @@ export const mailTools: ToolDefinition[] = [
     description: "List messages in a user mailbox",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      filter: z.string().optional(),
-      select: z.array(z.string()).optional(),
-      top: z.number().optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      filter: z.string().optional().describe("OData $filter expression (e.g. \"isRead eq false\")"),
+      select: z.array(z.string()).optional().describe("Fields to return (e.g. ['id', 'subject', 'from', 'receivedDateTime'])"),
+      top: z.number().optional().describe("Maximum number of messages to return"),
     },
     handler: (args: { userId: string; filter?: string; select?: string[]; top?: number }) => {
       const params: string[] = [];
@@ -67,8 +67,8 @@ export const mailTools: ToolDefinition[] = [
     description: "Get a specific mail message",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      messageId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      messageId: z.string().describe("Mail message ID"),
     },
     handler: (args: { userId: string; messageId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/messages/${args.messageId}`;
@@ -92,12 +92,12 @@ export const mailTools: ToolDefinition[] = [
     description: "Send an email message",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      toRecipients: z.array(z.string()),
-      subject: z.string(),
-      body: z.string(),
-      bodyContentType: z.enum(["Text", "HTML"]).optional(),
-      ccRecipients: z.array(z.string()).optional(),
+      userId: z.string().describe("User ID or UPN of the sender (e.g. user@contoso.com)"),
+      toRecipients: z.array(z.string()).describe("List of recipient email addresses"),
+      subject: z.string().describe("Email subject line"),
+      body: z.string().describe("Email body content"),
+      bodyContentType: z.enum(["Text", "HTML"]).optional().describe("Content type of the body — 'Text' or 'HTML'. Defaults to 'Text'."),
+      ccRecipients: z.array(z.string()).optional().describe("List of CC recipient email addresses"),
     },
     handler: (args: {
       userId: string;
@@ -137,12 +137,12 @@ export const mailTools: ToolDefinition[] = [
     description: "Create a draft mail message",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      toRecipients: z.array(z.string()),
-      subject: z.string(),
-      body: z.string(),
-      bodyContentType: z.enum(["Text", "HTML"]).optional(),
-      ccRecipients: z.array(z.string()).optional(),
+      userId: z.string().describe("User ID or UPN of the sender (e.g. user@contoso.com)"),
+      toRecipients: z.array(z.string()).describe("List of recipient email addresses"),
+      subject: z.string().describe("Email subject line"),
+      body: z.string().describe("Email body content"),
+      bodyContentType: z.enum(["Text", "HTML"]).optional().describe("Content type of the body — 'Text' or 'HTML'. Defaults to 'Text'."),
+      ccRecipients: z.array(z.string()).optional().describe("List of CC recipient email addresses"),
     },
     handler: (args: {
       userId: string;
@@ -179,9 +179,9 @@ export const mailTools: ToolDefinition[] = [
     description: "Reply to a mail message",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      messageId: z.string(),
-      comment: z.string(),
+      userId: z.string().describe("User ID or UPN of the sender (e.g. user@contoso.com)"),
+      messageId: z.string().describe("ID of the message to reply to"),
+      comment: z.string().describe("Reply body text"),
     },
     handler: (args: { userId: string; messageId: string; comment: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/messages/${args.messageId}/reply`;
@@ -206,8 +206,8 @@ export const mailTools: ToolDefinition[] = [
     description: "Delete a mail message",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      messageId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      messageId: z.string().describe("Mail message ID to delete"),
     },
     handler: (args: { userId: string; messageId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/messages/${args.messageId}`;
@@ -231,7 +231,7 @@ export const mailTools: ToolDefinition[] = [
     description: "List mail folders for a user",
     category: "mail",
     zodShape: {
-      userId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
     },
     handler: (args: { userId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/mailFolders`;
@@ -255,9 +255,9 @@ export const mailTools: ToolDefinition[] = [
     description: "Move a message to a different folder",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      messageId: z.string(),
-      destinationFolderId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      messageId: z.string().describe("Mail message ID to move"),
+      destinationFolderId: z.string().describe("Target folder ID or well-known name (e.g. 'inbox', 'drafts', 'sentitems', 'deleteditems')"),
     },
     handler: (args: { userId: string; messageId: string; destinationFolderId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/messages/${args.messageId}/move`;
@@ -282,9 +282,9 @@ export const mailTools: ToolDefinition[] = [
     description: "Get changes to messages in a mail folder since a previous delta token — returns only new, updated, or deleted messages.",
     category: "mail",
     zodShape: {
-      userId: z.string(),
-      folderId: z.string().optional().describe("Mail folder ID or well-known name like 'inbox'. Defaults to inbox."),
-      deltaToken: z.string().optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      folderId: z.string().optional().describe("Mail folder ID or well-known name (e.g. 'inbox', 'sentitems'). Defaults to inbox."),
+      deltaToken: z.string().optional().describe("Token from a previous delta response (@odata.deltaLink). Omit for initial sync."),
     },
     handler: (args: { userId: string; folderId?: string; deltaToken?: string }) => {
       let endpoint: string;

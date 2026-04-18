@@ -26,10 +26,10 @@ export const calendarTools: ToolDefinition[] = [
     description: "List calendar events for a user",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      startDateTime: z.string().optional().describe("ISO 8601 datetime"),
-      endDateTime: z.string().optional().describe("ISO 8601 datetime"),
-      top: z.number().optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      startDateTime: z.string().optional().describe("Start of the time window — ISO 8601 datetime (e.g. 2024-01-15T09:00:00)"),
+      endDateTime: z.string().optional().describe("End of the time window — ISO 8601 datetime (e.g. 2024-01-15T17:00:00)"),
+      top: z.number().optional().describe("Maximum number of events to return"),
     },
     handler: (args: { userId: string; startDateTime?: string; endDateTime?: string; top?: number }) => {
       const params: string[] = [];
@@ -58,8 +58,8 @@ export const calendarTools: ToolDefinition[] = [
     description: "Get a specific calendar event",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      eventId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      eventId: z.string().describe("Calendar event ID"),
     },
     handler: (args: { userId: string; eventId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/events/${args.eventId}`;
@@ -83,15 +83,15 @@ export const calendarTools: ToolDefinition[] = [
     description: "Create a calendar event",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      subject: z.string(),
-      startDateTime: z.string(),
-      endDateTime: z.string(),
-      timeZone: z.string().optional(),
-      attendees: z.array(z.string()).optional(),
-      bodyContent: z.string().optional(),
-      location: z.string().optional(),
-      isOnlineMeeting: z.boolean().optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      subject: z.string().describe("Event title/subject"),
+      startDateTime: z.string().describe("Event start — ISO 8601 datetime (e.g. 2024-01-15T09:00:00)"),
+      endDateTime: z.string().describe("Event end — ISO 8601 datetime (e.g. 2024-01-15T10:00:00)"),
+      timeZone: z.string().optional().describe("IANA time zone name (e.g. 'America/New_York'). Defaults to UTC."),
+      attendees: z.array(z.string()).optional().describe("List of attendee email addresses"),
+      bodyContent: z.string().optional().describe("HTML content for the event body"),
+      location: z.string().optional().describe("Display name of the meeting location"),
+      isOnlineMeeting: z.boolean().optional().describe("Whether to create a Teams online meeting link"),
     },
     handler: (args: {
       userId: string;
@@ -140,15 +140,15 @@ export const calendarTools: ToolDefinition[] = [
     description: "Update a calendar event",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      eventId: z.string(),
-      subject: z.string().optional(),
-      startDateTime: z.string().optional(),
-      endDateTime: z.string().optional(),
-      timeZone: z.string().optional(),
-      location: z.string().optional(),
-      bodyContent: z.string().optional(),
-      isOnlineMeeting: z.boolean().optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      eventId: z.string().describe("Calendar event ID to update"),
+      subject: z.string().optional().describe("New event title/subject"),
+      startDateTime: z.string().optional().describe("New event start — ISO 8601 datetime (e.g. 2024-01-15T09:00:00)"),
+      endDateTime: z.string().optional().describe("New event end — ISO 8601 datetime (e.g. 2024-01-15T10:00:00)"),
+      timeZone: z.string().optional().describe("IANA time zone name (e.g. 'America/New_York'). Defaults to UTC."),
+      location: z.string().optional().describe("Display name of the meeting location"),
+      bodyContent: z.string().optional().describe("HTML content for the event body"),
+      isOnlineMeeting: z.boolean().optional().describe("Whether to add or remove a Teams online meeting link"),
     },
     handler: (args: {
       userId: string;
@@ -190,8 +190,8 @@ export const calendarTools: ToolDefinition[] = [
     description: "Delete a calendar event",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      eventId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      eventId: z.string().describe("Calendar event ID to delete"),
     },
     handler: (args: { userId: string; eventId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/events/${args.eventId}`;
@@ -215,10 +215,10 @@ export const calendarTools: ToolDefinition[] = [
     description: "Find available meeting times for a set of attendees",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      attendees: z.array(z.string()),
-      duration: z.string().describe("ISO 8601 duration, e.g. PT1H"),
-      timeConstraints: z.record(z.unknown()).optional(),
+      userId: z.string().describe("User ID or UPN of the organizer (e.g. user@contoso.com)"),
+      attendees: z.array(z.string()).describe("List of attendee email addresses to find a time for"),
+      duration: z.string().describe("Required meeting duration — ISO 8601 duration (e.g. 'PT1H' for 1 hour, 'PT30M' for 30 minutes)"),
+      timeConstraints: z.record(z.unknown()).optional().describe("Time constraint object per Graph API schema — restricts the search window"),
     },
     handler: (args: { userId: string; attendees: string[]; duration: string; timeConstraints?: Record<string, unknown> }) => {
       const endpoint = `${BASE}/users/${args.userId}/findMeetingTimes`;
@@ -247,10 +247,10 @@ export const calendarTools: ToolDefinition[] = [
     description: "Get free/busy schedule for users",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      schedules: z.array(z.string()),
-      startDateTime: z.string(),
-      endDateTime: z.string(),
+      userId: z.string().describe("User ID or UPN of the requesting user (e.g. user@contoso.com)"),
+      schedules: z.array(z.string()).describe("List of email addresses to retrieve free/busy information for"),
+      startDateTime: z.string().describe("Start of the schedule window — ISO 8601 datetime (e.g. 2024-01-15T00:00:00)"),
+      endDateTime: z.string().describe("End of the schedule window — ISO 8601 datetime (e.g. 2024-01-15T23:59:59)"),
     },
     handler: (args: { userId: string; schedules: string[]; startDateTime: string; endDateTime: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/calendar/getSchedule`;
@@ -280,10 +280,10 @@ export const calendarTools: ToolDefinition[] = [
     description: "Get changes to calendar events since a previous delta token — returns only new, updated, or deleted events.",
     category: "calendar",
     zodShape: {
-      userId: z.string(),
-      startDateTime: z.string().optional(),
-      endDateTime: z.string().optional(),
-      deltaToken: z.string().optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      startDateTime: z.string().optional().describe("Start of the tracked window — ISO 8601 datetime. Required on first call, ignored when deltaToken is provided."),
+      endDateTime: z.string().optional().describe("End of the tracked window — ISO 8601 datetime. Required on first call, ignored when deltaToken is provided."),
+      deltaToken: z.string().optional().describe("Token from a previous delta response (@odata.deltaLink). Omit for initial sync."),
     },
     handler: (args: { userId: string; startDateTime?: string; endDateTime?: string; deltaToken?: string }) => {
       let endpoint: string;

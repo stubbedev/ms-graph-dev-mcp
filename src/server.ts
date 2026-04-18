@@ -17,37 +17,63 @@ import type { ToolDefinition } from "./registry.js";
 
 // Static search lookup for search_graph_api bootstrap tool
 const GRAPH_API_SEARCH_MAP: Array<{ keywords: string[]; endpoint: string; method: string; description: string; docsUrl: string; category: string }> = [
-  { keywords: ["user", "users", "get user", "list users", "find user"], endpoint: "/users or /users/{id}", method: "GET", description: "Get or list users in the tenant", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-get", category: "users" },
-  { keywords: ["me", "current user", "signed in", "profile"], endpoint: "/me", method: "GET", description: "Get the signed-in user's profile", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-get", category: "users" },
-  { keywords: ["create user", "new user", "register user"], endpoint: "/users", method: "POST", description: "Create a new user", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-users", category: "users" },
-  { keywords: ["update user", "patch user", "modify user"], endpoint: "/users/{id}", method: "PATCH", description: "Update user properties", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-update", category: "users" },
-  { keywords: ["delete user", "remove user"], endpoint: "/users/{id}", method: "DELETE", description: "Delete a user", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-delete", category: "users" },
-  { keywords: ["send mail", "send email", "email", "sendmail"], endpoint: "/users/{id}/sendMail", method: "POST", description: "Send an email message", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-sendmail", category: "mail" },
-  { keywords: ["list messages", "inbox", "emails", "messages"], endpoint: "/users/{id}/messages", method: "GET", description: "List messages in a mailbox", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-messages", category: "mail" },
-  { keywords: ["calendar", "events", "list events", "meetings"], endpoint: "/users/{id}/events", method: "GET", description: "List calendar events", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-events", category: "calendar" },
-  { keywords: ["create event", "new event", "schedule meeting", "book meeting"], endpoint: "/users/{id}/events", method: "POST", description: "Create a calendar event", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-events", category: "calendar" },
-  { keywords: ["group", "groups", "list groups", "find group"], endpoint: "/groups", method: "GET", description: "List groups in the tenant", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list", category: "groups" },
-  { keywords: ["create group", "new group", "microsoft 365 group"], endpoint: "/groups", method: "POST", description: "Create a new group", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-post-groups", category: "groups" },
-  { keywords: ["group members", "members", "list members", "member of"], endpoint: "/groups/{id}/members", method: "GET", description: "List group members", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list-members", category: "groups" },
-  { keywords: ["add member", "join group"], endpoint: "/groups/{id}/members/$ref", method: "POST", description: "Add a member to a group", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-post-members", category: "groups" },
-  { keywords: ["files", "onedrive", "documents", "drive"], endpoint: "/me/drive/root/children", method: "GET", description: "List files in OneDrive root", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-list-children", category: "files" },
-  { keywords: ["upload file", "upload", "put file"], endpoint: "/me/drive/items/{parentId}:/{filename}:/content", method: "PUT", description: "Upload a file to OneDrive", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-put-content", category: "files" },
-  { keywords: ["download file", "get file", "download url"], endpoint: "/me/drive/items/{id}?$select=id,@microsoft.graph.downloadUrl", method: "GET", description: "Get file download URL", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-get", category: "files" },
-  { keywords: ["sharepoint", "site", "sites", "sharepoint site"], endpoint: "/sites/{siteId}", method: "GET", description: "Get a SharePoint site", docsUrl: "https://learn.microsoft.com/en-us/graph/api/site-get", category: "sites" },
-  { keywords: ["list items", "sharepoint list", "sp list"], endpoint: "/sites/{siteId}/lists/{listId}/items", method: "GET", description: "List items in a SharePoint list", docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-list", category: "sites" },
-  { keywords: ["create list item", "add item", "new item"], endpoint: "/sites/{siteId}/lists/{listId}/items", method: "POST", description: "Create a SharePoint list item", docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-create", category: "sites" },
-  { keywords: ["planner", "tasks", "todo", "task list"], endpoint: "/planner/plans/{planId}/tasks", method: "GET", description: "List tasks in a Planner plan", docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannerplan-list-tasks", category: "tasks" },
-  { keywords: ["create task", "new task", "add task"], endpoint: "/planner/tasks", method: "POST", description: "Create a Planner task", docsUrl: "https://learn.microsoft.com/en-us/graph/api/planner-post-tasks", category: "tasks" },
-  { keywords: ["onenote", "notebook", "notes"], endpoint: "/users/{id}/onenote/notebooks", method: "GET", description: "List OneNote notebooks", docsUrl: "https://learn.microsoft.com/en-us/graph/api/onenote-list-notebooks", category: "notes" },
-  { keywords: ["manager", "reports", "org chart", "hierarchy"], endpoint: "/users/{id}/manager", method: "GET", description: "Get a user's manager", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-manager", category: "users" },
-  { keywords: ["free busy", "schedule", "availability", "find meeting"], endpoint: "/users/{id}/calendar/getSchedule", method: "POST", description: "Get free/busy schedule", docsUrl: "https://learn.microsoft.com/en-us/graph/api/calendar-getschedule", category: "calendar" },
-  { keywords: ["folder", "create folder", "new folder", "mkdir"], endpoint: "/me/drive/items/{parentId}/children", method: "POST", description: "Create a folder in OneDrive", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-post-children", category: "files" },
-  { keywords: ["mail folder", "inbox", "sent items", "drafts", "junk"], endpoint: "/users/{id}/mailFolders", method: "GET", description: "List mail folders", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-mailfolders", category: "mail" },
-  { keywords: ["reply", "reply to email", "reply to message"], endpoint: "/users/{id}/messages/{messageId}/reply", method: "POST", description: "Reply to a message", docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-reply", category: "mail" },
-  { keywords: ["large file", "upload session", "resumable upload"], endpoint: "/me/drive/items/{parentId}:/{filename}:/createUploadSession", method: "POST", description: "Create an upload session for large files", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-createuploadsession", category: "files" },
-  { keywords: ["move file", "move item", "relocate"], endpoint: "/me/drive/items/{itemId}", method: "PATCH", description: "Move a drive item by updating parentReference", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-move", category: "files" },
-  { keywords: ["copy file", "copy item", "duplicate"], endpoint: "/me/drive/items/{itemId}/copy", method: "POST", description: "Copy a drive item", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-copy", category: "files" },
-  { keywords: ["webhook", "subscription", "notify", "notification", "change notification", "subscribe", "push notification"], endpoint: "/subscriptions", method: "POST", description: "Create a webhook subscription for change notifications", docsUrl: "https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions", category: "subscriptions" },
+  // users
+  { keywords: ["user", "users", "get user", "list users", "find user", "lookup user", "user profile", "directory user", "entra user", "aad user"], endpoint: "/users or /users/{id}", method: "GET", description: "Get or list users in the tenant", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-get", category: "users" },
+  { keywords: ["me", "current user", "signed in", "my profile", "self", "whoami"], endpoint: "/me", method: "GET", description: "Get the signed-in user's profile", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-get", category: "users" },
+  { keywords: ["create user", "new user", "register user", "provision user", "add user"], endpoint: "/users", method: "POST", description: "Create a new user", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-users", category: "users" },
+  { keywords: ["update user", "patch user", "modify user", "change user", "edit user"], endpoint: "/users/{id}", method: "PATCH", description: "Update user properties", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-update", category: "users" },
+  { keywords: ["delete user", "remove user", "deactivate user"], endpoint: "/users/{id}", method: "DELETE", description: "Delete a user", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-delete", category: "users" },
+  { keywords: ["manager", "reports", "direct reports", "org chart", "hierarchy", "reporting line"], endpoint: "/users/{id}/manager", method: "GET", description: "Get a user's manager", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-manager", category: "users" },
+  { keywords: ["user delta", "user changes", "sync users", "track user changes"], endpoint: "/users/delta", method: "GET", description: "Get only changed users since last sync", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-delta", category: "users" },
+  // mail
+  { keywords: ["send mail", "send email", "send message", "email user", "sendmail", "compose email"], endpoint: "/users/{id}/sendMail", method: "POST", description: "Send an email message", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-sendmail", category: "mail" },
+  { keywords: ["list messages", "inbox", "emails", "messages", "read email", "get emails", "check email", "unread"], endpoint: "/users/{id}/messages", method: "GET", description: "List messages in a mailbox", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-messages", category: "mail" },
+  { keywords: ["reply", "reply to email", "reply to message", "respond to email"], endpoint: "/users/{id}/messages/{messageId}/reply", method: "POST", description: "Reply to a message", docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-reply", category: "mail" },
+  { keywords: ["draft", "create draft", "save draft", "draft email"], endpoint: "/users/{id}/messages", method: "POST", description: "Create a draft email message", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-messages", category: "mail" },
+  { keywords: ["mail folder", "inbox folder", "sent items", "drafts folder", "junk", "archive", "mailbox folder"], endpoint: "/users/{id}/mailFolders", method: "GET", description: "List mail folders", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-mailfolders", category: "mail" },
+  { keywords: ["move email", "move message", "move to folder"], endpoint: "/users/{id}/messages/{id}/move", method: "POST", description: "Move a message to a different folder", docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-move", category: "mail" },
+  { keywords: ["mail delta", "email changes", "sync mail", "track mail changes"], endpoint: "/users/{id}/mailFolders/{id}/messages/delta", method: "GET", description: "Get only changed messages since last sync", docsUrl: "https://learn.microsoft.com/en-us/graph/api/message-delta", category: "mail" },
+  // calendar
+  { keywords: ["calendar", "events", "list events", "meetings", "appointments", "outlook calendar"], endpoint: "/users/{id}/events", method: "GET", description: "List calendar events", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-list-events", category: "calendar" },
+  { keywords: ["create event", "new event", "schedule meeting", "book meeting", "add appointment", "invite"], endpoint: "/users/{id}/events", method: "POST", description: "Create a calendar event", docsUrl: "https://learn.microsoft.com/en-us/graph/api/user-post-events", category: "calendar" },
+  { keywords: ["free busy", "availability", "find meeting", "meeting times", "when is free", "schedule finder"], endpoint: "/users/{id}/calendar/getSchedule", method: "POST", description: "Get free/busy schedule", docsUrl: "https://learn.microsoft.com/en-us/graph/api/calendar-getschedule", category: "calendar" },
+  { keywords: ["calendar delta", "calendar changes", "sync calendar", "track event changes"], endpoint: "/me/calendarView/delta", method: "GET", description: "Get only changed calendar events since last sync", docsUrl: "https://learn.microsoft.com/en-us/graph/api/event-delta", category: "calendar" },
+  // files / OneDrive
+  { keywords: ["files", "onedrive", "documents", "drive", "list files", "browse files", "file explorer"], endpoint: "/me/drive/root/children", method: "GET", description: "List files in OneDrive root", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-list-children", category: "files" },
+  { keywords: ["upload file", "upload", "put file", "store file", "save file to onedrive"], endpoint: "/me/drive/items/{parentId}:/{filename}:/content", method: "PUT", description: "Upload a small file (<4 MB) to OneDrive", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-put-content", category: "files" },
+  { keywords: ["large file", "upload session", "resumable upload", "chunked upload", "upload video", "upload large"], endpoint: "/me/drive/items/{parentId}:/{filename}:/createUploadSession", method: "POST", description: "Create an upload session for large files (>4 MB)", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-createuploadsession", category: "files" },
+  { keywords: ["download file", "get file", "download url", "file url", "file link", "share link"], endpoint: "/me/drive/items/{id}?$select=id,@microsoft.graph.downloadUrl", method: "GET", description: "Get file download URL", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-get", category: "files" },
+  { keywords: ["folder", "create folder", "new folder", "mkdir", "make directory"], endpoint: "/me/drive/items/{parentId}/children", method: "POST", description: "Create a folder in OneDrive", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-post-children", category: "files" },
+  { keywords: ["move file", "move item", "relocate file", "move to folder"], endpoint: "/me/drive/items/{itemId}", method: "PATCH", description: "Move a drive item by updating parentReference", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-move", category: "files" },
+  { keywords: ["copy file", "copy item", "duplicate file", "clone file"], endpoint: "/me/drive/items/{itemId}/copy", method: "POST", description: "Copy a drive item", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-copy", category: "files" },
+  { keywords: ["search files", "find file", "search onedrive", "search documents"], endpoint: "/me/drive/root/search(q='{query}')", method: "GET", description: "Search for files in OneDrive", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-search", category: "files" },
+  { keywords: ["drive delta", "file changes", "sync drive", "track file changes", "onedrive sync"], endpoint: "/me/drive/root/delta", method: "GET", description: "Get only changed drive items since last sync", docsUrl: "https://learn.microsoft.com/en-us/graph/api/driveitem-delta", category: "files" },
+  // SharePoint
+  { keywords: ["sharepoint", "site", "sites", "sharepoint site", "sp site", "intranet"], endpoint: "/sites/{siteId}", method: "GET", description: "Get a SharePoint site", docsUrl: "https://learn.microsoft.com/en-us/graph/api/site-get", category: "sites" },
+  { keywords: ["list items", "sharepoint list", "sp list", "read list", "query list", "list data", "sharepoint data"], endpoint: "/sites/{siteId}/lists/{listId}/items", method: "GET", description: "List items in a SharePoint list", docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-list", category: "sites" },
+  { keywords: ["create list item", "add item", "new item", "add to list", "insert row", "add row"], endpoint: "/sites/{siteId}/lists/{listId}/items", method: "POST", description: "Create a SharePoint list item", docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-create", category: "sites" },
+  { keywords: ["update list item", "edit item", "patch item", "change row", "update row"], endpoint: "/sites/{siteId}/lists/{listId}/items/{itemId}/fields", method: "PATCH", description: "Update a SharePoint list item", docsUrl: "https://learn.microsoft.com/en-us/graph/api/listitem-update", category: "sites" },
+  { keywords: ["sharepoint columns", "list columns", "list schema", "list fields"], endpoint: "/sites/{siteId}/lists/{listId}/columns", method: "GET", description: "List columns in a SharePoint list", docsUrl: "https://learn.microsoft.com/en-us/graph/api/list-list-columns", category: "sites" },
+  { keywords: ["create sharepoint list", "new list", "create list"], endpoint: "/sites/{siteId}/lists", method: "POST", description: "Create a SharePoint list", docsUrl: "https://learn.microsoft.com/en-us/graph/api/list-create", category: "sites" },
+  // groups
+  { keywords: ["group", "groups", "list groups", "find group", "m365 group", "microsoft 365 group", "security group", "team"], endpoint: "/groups", method: "GET", description: "List groups in the tenant", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list", category: "groups" },
+  { keywords: ["create group", "new group", "microsoft 365 group", "create team", "new security group"], endpoint: "/groups", method: "POST", description: "Create a new group", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-post-groups", category: "groups" },
+  { keywords: ["group members", "members", "list members", "member of", "who is in group"], endpoint: "/groups/{id}/members", method: "GET", description: "List group members", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list-members", category: "groups" },
+  { keywords: ["add member", "join group", "add to group", "add user to group"], endpoint: "/groups/{id}/members/$ref", method: "POST", description: "Add a member to a group", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-post-members", category: "groups" },
+  { keywords: ["remove member", "leave group", "kick from group", "remove from group"], endpoint: "/groups/{id}/members/{id}/$ref", method: "DELETE", description: "Remove a member from a group", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-delete-members", category: "groups" },
+  { keywords: ["group owners", "owner", "list owners", "who owns group"], endpoint: "/groups/{id}/owners", method: "GET", description: "List group owners", docsUrl: "https://learn.microsoft.com/en-us/graph/api/group-list-owners", category: "groups" },
+  // tasks
+  { keywords: ["planner", "tasks", "planner task", "task board", "kanban"], endpoint: "/planner/plans/{planId}/tasks", method: "GET", description: "List tasks in a Planner plan", docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannerplan-list-tasks", category: "tasks" },
+  { keywords: ["create task", "new task", "add task", "create planner task"], endpoint: "/planner/tasks", method: "POST", description: "Create a Planner task", docsUrl: "https://learn.microsoft.com/en-us/graph/api/planner-post-tasks", category: "tasks" },
+  { keywords: ["todo", "to do", "microsoft to do", "task list", "personal tasks"], endpoint: "/users/{id}/todo/lists", method: "GET", description: "List Microsoft To Do task lists", docsUrl: "https://learn.microsoft.com/en-us/graph/api/todo-list-lists", category: "tasks" },
+  { keywords: ["planner plan", "plans", "list plans", "group plans"], endpoint: "/groups/{id}/planner/plans", method: "GET", description: "List Planner plans for a group", docsUrl: "https://learn.microsoft.com/en-us/graph/api/plannergroup-list-plans", category: "tasks" },
+  // notes
+  { keywords: ["onenote", "notebook", "notes", "note", "list notebooks"], endpoint: "/users/{id}/onenote/notebooks", method: "GET", description: "List OneNote notebooks", docsUrl: "https://learn.microsoft.com/en-us/graph/api/onenote-list-notebooks", category: "notes" },
+  { keywords: ["onenote page", "note page", "create page", "add note", "write note"], endpoint: "/users/{id}/onenote/sections/{id}/pages", method: "POST", description: "Create a OneNote page", docsUrl: "https://learn.microsoft.com/en-us/graph/api/section-post-pages", category: "notes" },
+  { keywords: ["onenote section", "notebook section", "list sections"], endpoint: "/users/{id}/onenote/notebooks/{id}/sections", method: "GET", description: "List sections in a notebook", docsUrl: "https://learn.microsoft.com/en-us/graph/api/notebook-list-sections", category: "notes" },
+  // subscriptions / webhooks
+  { keywords: ["webhook", "subscription", "subscribe", "notify", "notification", "change notification", "push notification", "real-time", "realtime", "event driven", "listen for changes"], endpoint: "/subscriptions", method: "POST", description: "Create a webhook subscription for change notifications", docsUrl: "https://learn.microsoft.com/en-us/graph/api/subscription-post-subscriptions", category: "subscriptions" },
+  { keywords: ["renew subscription", "extend webhook", "refresh subscription"], endpoint: "/subscriptions/{id}", method: "PATCH", description: "Renew a webhook subscription", docsUrl: "https://learn.microsoft.com/en-us/graph/api/subscription-update", category: "subscriptions" },
 ];
 
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
@@ -89,10 +115,30 @@ export class GraphMcpServer {
           tools: { listChanged: true },
         },
         instructions:
-          "Use this server whenever the user mentions SharePoint, Microsoft Graph, OneDrive, Exchange Online, Office 365, Microsoft 365, Azure Active Directory, Entra ID, Microsoft Teams, Planner, OneNote, Microsoft To Do, webhooks, or subscriptions. " +
-          "This server constructs and validates Microsoft Graph REST API requests — it does not execute them. " +
-          "Call list_categories to see available resource areas, then load_category to activate tools for the relevant area. " +
-          "Use graph_explain_* tools to understand Graph API concepts like pagination, OData, throttling, delta queries, batching, and permissions.",
+          "Use this server whenever the user is building, debugging, or learning about anything that touches Microsoft Graph, Microsoft 365, or Azure AD / Entra ID — " +
+          "including: SharePoint lists/sites, OneDrive files, Outlook mail/calendar/contacts, Microsoft Teams, Azure Active Directory, Entra ID, " +
+          "Exchange Online, Planner, OneNote, Microsoft To Do, webhooks/subscriptions, or any endpoint under graph.microsoft.com.\n\n" +
+          "WORKFLOW — choose the fastest path:\n" +
+          "1. Intent is clear → call load_category directly (no need to search first):\n" +
+          "   - mail / email / inbox / Outlook → load_category('mail')\n" +
+          "   - calendar / events / meetings / schedule → load_category('calendar')\n" +
+          "   - files / OneDrive / upload / download / drive → load_category('files')\n" +
+          "   - SharePoint / lists / list items / sites → load_category('sites')\n" +
+          "   - users / Azure AD / Entra ID / directory → load_category('users')\n" +
+          "   - groups / Microsoft 365 group / security group → load_category('groups')\n" +
+          "   - tasks / Planner / To Do → load_category('tasks')\n" +
+          "   - OneNote / notebooks → load_category('notes')\n" +
+          "   - webhooks / subscriptions / change notifications → load_category('subscriptions')\n" +
+          "2. Intent is ambiguous → call search_graph_api to find the right category, then load it.\n" +
+          "3. Conceptual questions → call the relevant graph_explain_* tool directly:\n" +
+          "   - Pagination / nextLink → graph_explain_pagination\n" +
+          "   - $filter / $select / $expand / OData → graph_explain_odata\n" +
+          "   - 429 / throttling / rate limits → graph_explain_throttling\n" +
+          "   - Delta queries / sync / change tracking → graph_explain_delta\n" +
+          "   - $batch / batching → graph_explain_batch\n" +
+          "   - Permissions / scopes / app registration / tokens → graph_explain_permissions\n" +
+          "   - 401 / 403 / errors → graph_explain_errors\n\n" +
+          "This server constructs Graph API requests (endpoint, method, headers, body, code example, required permissions) — it does not execute them.",
       }
     );
 
@@ -103,7 +149,7 @@ export class GraphMcpServer {
     // list_categories
     this.mcpServer.tool(
       "list_categories",
-      "List all Microsoft Graph API resource categories — SharePoint sites/lists, OneDrive files, Exchange mail, Outlook calendar, Azure AD users, M365 groups, OneNote, Planner, To Do, and webhook subscriptions. Shows which categories are currently loaded.",
+      "List all available Microsoft Graph API resource categories with descriptions and load status. Categories: users (Azure AD/Entra ID), files (OneDrive/SharePoint drives), mail (Exchange Online), calendar (Outlook), groups (M365/security groups), notes (OneNote), tasks (Planner/To Do), sites (SharePoint sites and lists), subscriptions (webhooks/change notifications).",
       {},
       async () => {
         const categories = Object.entries(CATEGORY_DESCRIPTIONS).map(([name, description]) => ({
@@ -126,7 +172,11 @@ export class GraphMcpServer {
     // load_category
     this.mcpServer.tool(
       "load_category",
-      "Load Graph API construction tools for a resource category. Use 'sites' for SharePoint sites, lists, and list items; 'files' for OneDrive and SharePoint document libraries; 'users' for Azure AD / Entra ID users; 'mail' for Exchange Online; 'calendar' for Outlook calendar; 'groups' for Microsoft 365 groups; 'notes' for OneNote; 'tasks' for Planner and Microsoft To Do; 'subscriptions' for webhook change notifications. Sends tools/list_changed after loading.",
+      "Activate Graph API tools for a resource category. Call this as soon as the user's intent is clear — do not wait for confirmation. " +
+      "Categories: 'users' (Azure AD/Entra ID user management), 'mail' (Exchange Online messages/folders), 'calendar' (Outlook events/scheduling), " +
+      "'files' (OneDrive uploads/downloads/folders), 'sites' (SharePoint sites/lists/items), 'groups' (M365 and security groups), " +
+      "'notes' (OneNote notebooks/pages), 'tasks' (Planner plans/tasks and To Do), 'subscriptions' (webhooks/change notifications). " +
+      "Multiple categories can be loaded — load all relevant ones when the task spans areas.",
       { category: z.string().describe("Category to load: users, files, mail, calendar, groups, notes, tasks, sites, or subscriptions") },
       async ({ category }) => {
         const normalizedCategory = category.toLowerCase().trim();
@@ -681,6 +731,87 @@ https://learn.microsoft.com/en-us/graph/auth/auth-concepts`;
             },
           ],
         };
+      }
+    );
+
+    // graph_explain_errors
+    this.mcpServer.tool(
+      "graph_explain_errors",
+      "Explain common Microsoft Graph API error codes and how to fix them — 401, 403, 404, 429, 503, and Graph-specific error codes like InvalidAuthenticationToken, Forbidden, and ItemNotFound.",
+      {},
+      async () => {
+        const text = `# Microsoft Graph API Common Errors
+
+## 401 Unauthorized — Authentication Failure
+
+**Causes and fixes:**
+- \`InvalidAuthenticationToken\` — token is expired, malformed, or for the wrong audience
+  - Ensure the token audience is \`https://graph.microsoft.com\`
+  - Refresh the token and retry
+- \`AuthenticationRequiredError\` — no Authorization header sent
+  - Add \`Authorization: Bearer {token}\` header to every request
+- Token issued for wrong tenant
+  - Use \`https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token\`, not \`common\`, when targeting a specific tenant
+
+## 403 Forbidden — Insufficient Permissions
+
+**Causes and fixes:**
+- \`Forbidden\` / \`Authorization_RequestDenied\` — the token lacks the required scope
+  - Check the tool's \`requiredPermissions\` field — add the missing scope to your app registration
+  - For application permissions, admin consent is always required
+  - For delegated permissions, the signed-in user may not have access to that resource
+- \`AccessDenied\` — the user/app doesn't have access to the specific resource (e.g. a SharePoint site with restricted access)
+
+## 404 Not Found
+
+**Causes and fixes:**
+- \`itemNotFound\` — the resource ID is wrong or was deleted
+  - IDs in Graph are case-sensitive — copy them exactly
+  - The resource may have been deleted (check recycle bin where applicable)
+- Wrong endpoint — double-check the URL structure in the tool's \`endpoint\` field
+- For SharePoint: the site or list may not exist or the user's tenant URL may differ
+
+## 409 Conflict
+
+**Causes and fixes:**
+- Item already exists — use \`@microsoft.graph.conflictBehavior: rename\` or \`replace\` for file uploads
+- \`nameAlreadyExists\` on group/list creation — choose a different name or mailNickname
+
+## 412 Precondition Failed
+
+**Causes and fixes:**
+- Stale \`If-Match\` eTag — Planner task updates require a current eTag
+  - Fetch the resource again to get the latest eTag before retrying the PATCH
+
+## 429 Too Many Requests — Throttled
+
+**Causes and fixes:**
+- Read the \`Retry-After\` header (seconds) and wait that long before retrying
+- Use exponential backoff for repeated 429s
+- See \`graph_explain_throttling\` for a retry wrapper implementation
+
+## 503 Service Unavailable / 504 Gateway Timeout
+
+**Causes and fixes:**
+- Transient service issue — retry with exponential backoff
+- Large response or slow query — add \`$select\` to reduce payload, or \`$top\` to reduce page size
+
+## Graph-Specific Error Body
+Errors return a JSON body with \`error.code\` and \`error.message\`:
+\`\`\`json
+{
+  "error": {
+    "code": "InvalidAuthenticationToken",
+    "message": "Access token is empty.",
+    "innerError": { "request-id": "...", "date": "..." }
+  }
+}
+\`\`\`
+Always log \`error.code\` and \`innerError.request-id\` when debugging — the request ID can be shared with Microsoft support.
+
+## Docs
+https://learn.microsoft.com/en-us/graph/errors`;
+        return { content: [{ type: "text" as const, text }] };
       }
     );
   }

@@ -16,8 +16,8 @@ export const usersTools: ToolDefinition[] = [
     description: "Get a user by ID or UPN",
     category: "users",
     zodShape: {
-      userId: z.string().describe("User ID or UPN"),
-      select: z.array(z.string()).optional().describe("Fields to select"),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      select: z.array(z.string()).optional().describe("Fields to return (e.g. ['id', 'displayName', 'mail'])"),
     },
     handler: (args: { userId: string; select?: string[] }) => {
       const selectParam = args.select?.length ? `?$select=${args.select.join(",")}` : "";
@@ -45,10 +45,10 @@ export const usersTools: ToolDefinition[] = [
     description: "List all users",
     category: "users",
     zodShape: {
-      filter: z.string().optional().describe("OData filter expression"),
-      select: z.array(z.string()).optional().describe("Fields to select"),
-      top: z.number().optional().describe("Max number of results"),
-      skip: z.number().optional().describe("Number of results to skip"),
+      filter: z.string().optional().describe("OData $filter expression (e.g. \"department eq 'Engineering'\")"),
+      select: z.array(z.string()).optional().describe("Fields to return (e.g. ['id', 'displayName', 'mail'])"),
+      top: z.number().optional().describe("Maximum number of users to return"),
+      skip: z.number().optional().describe("Number of users to skip (for pagination)"),
     },
     handler: (args: { filter?: string; select?: string[]; top?: number; skip?: number }) => {
       const params: string[] = [];
@@ -81,11 +81,11 @@ export const usersTools: ToolDefinition[] = [
     description: "Create a new user",
     category: "users",
     zodShape: {
-      displayName: z.string(),
-      mailNickname: z.string(),
-      userPrincipalName: z.string(),
-      password: z.string(),
-      accountEnabled: z.boolean().optional(),
+      displayName: z.string().describe("User's full display name (e.g. 'John Doe')"),
+      mailNickname: z.string().describe("Mail alias without the domain (e.g. 'johndoe')"),
+      userPrincipalName: z.string().describe("UPN in email format (e.g. 'johndoe@contoso.com')"),
+      password: z.string().describe("Initial password for the new user"),
+      accountEnabled: z.boolean().optional().describe("Whether the account is enabled on creation. Defaults to true."),
     },
     handler: (args: {
       displayName: string;
@@ -128,13 +128,13 @@ export const usersTools: ToolDefinition[] = [
     description: "Update user properties",
     category: "users",
     zodShape: {
-      userId: z.string(),
-      displayName: z.string().optional(),
-      jobTitle: z.string().optional(),
-      department: z.string().optional(),
-      mobilePhone: z.string().optional(),
-      officeLocation: z.string().optional(),
-      preferredLanguage: z.string().optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      displayName: z.string().optional().describe("User's full display name"),
+      jobTitle: z.string().optional().describe("User's job title"),
+      department: z.string().optional().describe("User's department"),
+      mobilePhone: z.string().optional().describe("User's mobile phone number"),
+      officeLocation: z.string().optional().describe("User's office location"),
+      preferredLanguage: z.string().optional().describe("User's preferred language (e.g. 'en-US')"),
     },
     handler: (args: {
       userId: string;
@@ -171,7 +171,7 @@ export const usersTools: ToolDefinition[] = [
     description: "Delete a user",
     category: "users",
     zodShape: {
-      userId: z.string(),
+      userId: z.string().describe("User ID or UPN to delete (e.g. user@contoso.com)"),
     },
     handler: (args: { userId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}`;
@@ -198,7 +198,7 @@ export const usersTools: ToolDefinition[] = [
     description: "Get the manager of a user",
     category: "users",
     zodShape: {
-      userId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
     },
     handler: (args: { userId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/manager`;
@@ -225,7 +225,7 @@ export const usersTools: ToolDefinition[] = [
     description: "List direct reports of a user",
     category: "users",
     zodShape: {
-      userId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
     },
     handler: (args: { userId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/directReports`;
@@ -252,8 +252,8 @@ export const usersTools: ToolDefinition[] = [
     description: "Get changes to users in Azure AD since a previous delta token — returns only added, updated, or deleted users.",
     category: "users",
     zodShape: {
-      deltaToken: z.string().optional().describe("Token from previous delta response. Omit for initial sync."),
-      select: z.array(z.string()).optional(),
+      deltaToken: z.string().optional().describe("Token from a previous delta response (@odata.deltaLink). Omit for initial sync to retrieve all users."),
+      select: z.array(z.string()).optional().describe("Fields to return (e.g. ['id', 'displayName', 'mail'])"),
     },
     handler: (args: { deltaToken?: string; select?: string[] }) => {
       let endpoint: string;

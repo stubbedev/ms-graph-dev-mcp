@@ -36,7 +36,7 @@ export const tasksTools: ToolDefinition[] = [
     description: "List Planner plans for a group",
     category: "tasks",
     zodShape: {
-      groupId: z.string(),
+      groupId: z.string().describe("Microsoft 365 group ID that owns the plans"),
     },
     handler: (args: { groupId: string }) => {
       const endpoint = `${BASE}/groups/${args.groupId}/planner/plans`;
@@ -60,7 +60,7 @@ export const tasksTools: ToolDefinition[] = [
     description: "Get a Planner plan by ID",
     category: "tasks",
     zodShape: {
-      planId: z.string(),
+      planId: z.string().describe("Planner plan ID"),
     },
     handler: (args: { planId: string }) => {
       const endpoint = `${BASE}/planner/plans/${args.planId}`;
@@ -84,7 +84,7 @@ export const tasksTools: ToolDefinition[] = [
     description: "Create a Planner plan",
     category: "tasks",
     zodShape: {
-      title: z.string(),
+      title: z.string().describe("Title of the new plan"),
       ownerId: z.string().describe("Group ID that owns the plan"),
     },
     handler: (args: { title: string; ownerId: string }) => {
@@ -110,7 +110,7 @@ export const tasksTools: ToolDefinition[] = [
     description: "List tasks in a Planner plan",
     category: "tasks",
     zodShape: {
-      planId: z.string(),
+      planId: z.string().describe("Planner plan ID"),
     },
     handler: (args: { planId: string }) => {
       const endpoint = `${BASE}/planner/plans/${args.planId}/tasks`;
@@ -134,7 +134,7 @@ export const tasksTools: ToolDefinition[] = [
     description: "Get a Planner task by ID",
     category: "tasks",
     zodShape: {
-      taskId: z.string(),
+      taskId: z.string().describe("Planner task ID"),
     },
     handler: (args: { taskId: string }) => {
       const endpoint = `${BASE}/planner/tasks/${args.taskId}`;
@@ -158,11 +158,11 @@ export const tasksTools: ToolDefinition[] = [
     description: "Create a Planner task",
     category: "tasks",
     zodShape: {
-      planId: z.string(),
-      title: z.string(),
-      bucketId: z.string().optional(),
-      assignedToIds: z.array(z.string()).optional(),
-      dueDateTime: z.string().optional(),
+      planId: z.string().describe("Planner plan ID to create the task in"),
+      title: z.string().describe("Title of the new task"),
+      bucketId: z.string().optional().describe("Planner bucket ID to place the task in"),
+      assignedToIds: z.array(z.string()).optional().describe("List of user IDs to assign the task to"),
+      dueDateTime: z.string().optional().describe("Due date — ISO 8601 datetime in UTC (e.g. '2024-12-31T23:59:59Z')"),
     },
     handler: (args: {
       planId: string;
@@ -200,12 +200,12 @@ export const tasksTools: ToolDefinition[] = [
     description: "Update a Planner task",
     category: "tasks",
     zodShape: {
-      taskId: z.string(),
-      eTag: z.string().describe("ETag from the task (required for updates)"),
-      title: z.string().optional(),
-      percentComplete: z.number().optional(),
-      dueDateTime: z.string().optional(),
-      bucketId: z.string().optional(),
+      taskId: z.string().describe("Planner task ID to update"),
+      eTag: z.string().describe("ETag from the task (required for updates) — retrieve the task first to get the current value"),
+      title: z.string().optional().describe("New task title"),
+      percentComplete: z.number().optional().describe("Completion percentage — 0 (not started), 50 (in progress), or 100 (complete)"),
+      dueDateTime: z.string().optional().describe("New due date — ISO 8601 datetime in UTC (e.g. '2024-12-31T23:59:59Z')"),
+      bucketId: z.string().optional().describe("Planner bucket ID to move the task to"),
     },
     handler: (args: {
       taskId: string;
@@ -244,8 +244,8 @@ export const tasksTools: ToolDefinition[] = [
     description: "Delete a Planner task",
     category: "tasks",
     zodShape: {
-      taskId: z.string(),
-      eTag: z.string().describe("ETag from the task"),
+      taskId: z.string().describe("Planner task ID to delete"),
+      eTag: z.string().describe("ETag from the task — retrieve the task first to get the current value"),
     },
     handler: (args: { taskId: string; eTag: string }) => {
       const endpoint = `${BASE}/planner/tasks/${args.taskId}`;
@@ -272,7 +272,7 @@ export const tasksTools: ToolDefinition[] = [
     description: "List Microsoft To Do task lists",
     category: "tasks",
     zodShape: {
-      userId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
     },
     handler: (args: { userId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/todo/lists`;
@@ -296,11 +296,11 @@ export const tasksTools: ToolDefinition[] = [
     description: "Create a Microsoft To Do task",
     category: "tasks",
     zodShape: {
-      userId: z.string(),
-      listId: z.string(),
-      title: z.string(),
-      dueDateTime: z.string().optional(),
-      importance: z.enum(["low", "normal", "high"]).optional(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      listId: z.string().describe("Microsoft To Do list ID to create the task in"),
+      title: z.string().describe("Title of the new task"),
+      dueDateTime: z.string().optional().describe("Due date — ISO 8601 datetime in UTC (e.g. '2024-12-31T23:59:59Z')"),
+      importance: z.enum(["low", "normal", "high"]).optional().describe("Task importance level — 'low', 'normal', or 'high'"),
     },
     handler: (args: {
       userId: string;

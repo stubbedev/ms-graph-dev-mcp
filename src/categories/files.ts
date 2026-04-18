@@ -32,9 +32,9 @@ export const filesTools: ToolDefinition[] = [
     description: "List children of a drive item (folder)",
     category: "files",
     zodShape: {
-      driveId: z.string().optional(),
-      itemId: z.string().optional().describe("Item ID or 'root'"),
-      userId: z.string().optional(),
+      driveId: z.string().optional().describe("Drive ID — omit to use the default drive"),
+      itemId: z.string().optional().describe("Item ID of the folder to list, or 'root' for the root folder"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { driveId?: string; itemId?: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -60,9 +60,9 @@ export const filesTools: ToolDefinition[] = [
     description: "Get a drive item by ID",
     category: "files",
     zodShape: {
-      driveId: z.string().optional(),
-      itemId: z.string(),
-      userId: z.string().optional(),
+      driveId: z.string().optional().describe("Drive ID — omit to use the default drive"),
+      itemId: z.string().describe("Drive item ID"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { driveId?: string; itemId: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -87,10 +87,10 @@ export const filesTools: ToolDefinition[] = [
     description: "Upload a small file (<4MB) using PUT",
     category: "files",
     zodShape: {
-      fileName: z.string(),
-      parentId: z.string().optional(),
-      userId: z.string().optional(),
-      contentType: z.string().optional(),
+      fileName: z.string().describe("Name of the file including extension (e.g. 'report.pdf')"),
+      parentId: z.string().optional().describe("Item ID of the parent folder — omit to upload to root"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
+      contentType: z.string().optional().describe("MIME type of the file (e.g. 'image/jpeg', 'application/pdf'). Defaults to application/octet-stream."),
     },
     handler: (args: { fileName: string; parentId?: string; userId?: string; contentType?: string }) => {
       const base = driveBasePath(args);
@@ -120,9 +120,9 @@ export const filesTools: ToolDefinition[] = [
     description: "Create an upload session for large files (>4MB)",
     category: "files",
     zodShape: {
-      fileName: z.string(),
-      parentId: z.string().optional(),
-      userId: z.string().optional(),
+      fileName: z.string().describe("Name of the file including extension (e.g. 'video.mp4')"),
+      parentId: z.string().optional().describe("Item ID of the parent folder — omit to upload to root"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { fileName: string; parentId?: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -154,9 +154,9 @@ export const filesTools: ToolDefinition[] = [
     description: "Create a new folder in a drive",
     category: "files",
     zodShape: {
-      folderName: z.string(),
-      parentId: z.string().optional(),
-      userId: z.string().optional(),
+      folderName: z.string().describe("Name of the new folder"),
+      parentId: z.string().optional().describe("Item ID of the parent folder — omit to create in root"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { folderName: string; parentId?: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -187,8 +187,8 @@ export const filesTools: ToolDefinition[] = [
     description: "Delete a drive item",
     category: "files",
     zodShape: {
-      itemId: z.string(),
-      userId: z.string().optional(),
+      itemId: z.string().describe("Drive item ID to delete"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { itemId: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -213,9 +213,9 @@ export const filesTools: ToolDefinition[] = [
     description: "Move a drive item to a new parent",
     category: "files",
     zodShape: {
-      itemId: z.string(),
-      destinationParentId: z.string(),
-      userId: z.string().optional(),
+      itemId: z.string().describe("Drive item ID to move"),
+      destinationParentId: z.string().describe("Item ID of the destination parent folder"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { itemId: string; destinationParentId: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -241,10 +241,10 @@ export const filesTools: ToolDefinition[] = [
     description: "Copy a drive item to a new location",
     category: "files",
     zodShape: {
-      itemId: z.string(),
-      destinationParentId: z.string(),
-      newName: z.string().optional(),
-      userId: z.string().optional(),
+      itemId: z.string().describe("Drive item ID to copy"),
+      destinationParentId: z.string().describe("Item ID of the destination parent folder"),
+      newName: z.string().optional().describe("New name for the copied item — omit to keep the original name"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { itemId: string; destinationParentId: string; newName?: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -271,8 +271,8 @@ export const filesTools: ToolDefinition[] = [
     description: "Search for files in OneDrive",
     category: "files",
     zodShape: {
-      query: z.string(),
-      userId: z.string().optional(),
+      query: z.string().describe("Search query string (e.g. 'quarterly report')"),
+      userId: z.string().optional().describe("User ID or UPN — omit to search the signed-in user's drive"),
     },
     handler: (args: { query: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -297,8 +297,8 @@ export const filesTools: ToolDefinition[] = [
     description: "Get a download URL for a drive item",
     category: "files",
     zodShape: {
-      itemId: z.string(),
-      userId: z.string().optional(),
+      itemId: z.string().describe("Drive item ID to get the download URL for"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { itemId: string; userId?: string }) => {
       const base = driveBasePath(args);
@@ -323,9 +323,9 @@ export const filesTools: ToolDefinition[] = [
     description: "Get changes to a drive (OneDrive or SharePoint document library) since a previous delta token — returns only added, modified, or deleted items.",
     category: "files",
     zodShape: {
-      deltaToken: z.string().optional(),
-      driveId: z.string().optional(),
-      userId: z.string().optional(),
+      deltaToken: z.string().optional().describe("Token from a previous delta response (@odata.deltaLink). Omit for initial sync to retrieve all items."),
+      driveId: z.string().optional().describe("Drive ID — omit to use the default drive"),
+      userId: z.string().optional().describe("User ID or UPN — omit to use the signed-in user's drive"),
     },
     handler: (args: { deltaToken?: string; driveId?: string; userId?: string }) => {
       let endpoint: string;

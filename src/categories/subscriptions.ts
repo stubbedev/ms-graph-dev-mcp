@@ -21,11 +21,11 @@ export const subscriptionsTools: ToolDefinition[] = [
     description: "Create a webhook subscription to receive change notifications for a Microsoft Graph resource.",
     category: "subscriptions",
     zodShape: {
-      resource: z.string().describe("Resource path to watch, e.g. 'users', 'me/mailFolders/inbox/messages', 'sites/{siteId}/lists/{listId}', '/teams/{teamId}/channels'"),
-      changeTypes: z.array(z.enum(["created", "updated", "deleted"])),
-      notificationUrl: z.string().describe("HTTPS endpoint that will receive notifications"),
-      expirationMinutes: z.number().optional().describe("Expiry in minutes from now. Max varies by resource. Defaults to 4230 minutes (mail/calendar/contacts) or 4320 (other)."),
-      clientState: z.string().optional(),
+      resource: z.string().describe("Resource path to watch (e.g. 'users', 'me/mailFolders/inbox/messages', 'sites/{siteId}/lists/{listId}', '/teams/{teamId}/channels')"),
+      changeTypes: z.array(z.enum(["created", "updated", "deleted"])).describe("Event types to subscribe to — any combination of 'created', 'updated', 'deleted'"),
+      notificationUrl: z.string().describe("HTTPS endpoint that will receive notifications — must be publicly reachable"),
+      expirationMinutes: z.number().optional().describe("Subscription lifetime in minutes from now. Max varies by resource (mail/calendar/contacts: 4230 min, others: up to 4320 min). Defaults to 4230."),
+      clientState: z.string().optional().describe("Secret value included in every notification so you can verify it came from Graph"),
     },
     handler: (args: {
       resource: string;
@@ -87,7 +87,7 @@ export const subscriptionsTools: ToolDefinition[] = [
     description: "Get a specific webhook subscription by ID.",
     category: "subscriptions",
     zodShape: {
-      subscriptionId: z.string(),
+      subscriptionId: z.string().describe("Webhook subscription ID"),
     },
     handler: (args: { subscriptionId: string }) => {
       const endpoint = `${BASE}/subscriptions/${args.subscriptionId}`;
@@ -111,7 +111,7 @@ export const subscriptionsTools: ToolDefinition[] = [
     description: "Delete a webhook subscription to stop receiving notifications.",
     category: "subscriptions",
     zodShape: {
-      subscriptionId: z.string(),
+      subscriptionId: z.string().describe("Webhook subscription ID to delete"),
     },
     handler: (args: { subscriptionId: string }) => {
       const endpoint = `${BASE}/subscriptions/${args.subscriptionId}`;
@@ -135,8 +135,8 @@ export const subscriptionsTools: ToolDefinition[] = [
     description: "Renew a webhook subscription before it expires to continue receiving notifications.",
     category: "subscriptions",
     zodShape: {
-      subscriptionId: z.string(),
-      expirationMinutes: z.number().optional(),
+      subscriptionId: z.string().describe("Webhook subscription ID to renew"),
+      expirationMinutes: z.number().optional().describe("New lifetime in minutes from now. Defaults to 4230. Check resource-specific limits in the docs."),
     },
     handler: (args: { subscriptionId: string; expirationMinutes?: number }) => {
       const endpoint = `${BASE}/subscriptions/${args.subscriptionId}`;

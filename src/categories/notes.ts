@@ -26,7 +26,7 @@ export const notesTools: ToolDefinition[] = [
     description: "List OneNote notebooks for a user",
     category: "notes",
     zodShape: {
-      userId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
     },
     handler: (args: { userId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/notebooks`;
@@ -50,8 +50,8 @@ export const notesTools: ToolDefinition[] = [
     description: "Get a specific OneNote notebook",
     category: "notes",
     zodShape: {
-      userId: z.string(),
-      notebookId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      notebookId: z.string().describe("OneNote notebook ID"),
     },
     handler: (args: { userId: string; notebookId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/notebooks/${args.notebookId}`;
@@ -75,8 +75,8 @@ export const notesTools: ToolDefinition[] = [
     description: "Create a new OneNote notebook",
     category: "notes",
     zodShape: {
-      userId: z.string(),
-      displayName: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      displayName: z.string().describe("Display name for the new notebook"),
     },
     handler: (args: { userId: string; displayName: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/notebooks`;
@@ -101,8 +101,8 @@ export const notesTools: ToolDefinition[] = [
     description: "List sections in a notebook",
     category: "notes",
     zodShape: {
-      userId: z.string(),
-      notebookId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      notebookId: z.string().describe("OneNote notebook ID"),
     },
     handler: (args: { userId: string; notebookId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/notebooks/${args.notebookId}/sections`;
@@ -126,9 +126,9 @@ export const notesTools: ToolDefinition[] = [
     description: "Create a section in a notebook",
     category: "notes",
     zodShape: {
-      userId: z.string(),
-      notebookId: z.string(),
-      displayName: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      notebookId: z.string().describe("OneNote notebook ID to create the section in"),
+      displayName: z.string().describe("Display name for the new section"),
     },
     handler: (args: { userId: string; notebookId: string; displayName: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/notebooks/${args.notebookId}/sections`;
@@ -153,8 +153,8 @@ export const notesTools: ToolDefinition[] = [
     description: "List pages in a OneNote section",
     category: "notes",
     zodShape: {
-      userId: z.string(),
-      sectionId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      sectionId: z.string().describe("OneNote section ID"),
     },
     handler: (args: { userId: string; sectionId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/sections/${args.sectionId}/pages`;
@@ -178,10 +178,10 @@ export const notesTools: ToolDefinition[] = [
     description: "Create a page in a OneNote section",
     category: "notes",
     zodShape: {
-      userId: z.string(),
-      sectionId: z.string(),
-      title: z.string(),
-      htmlContent: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      sectionId: z.string().describe("OneNote section ID to create the page in"),
+      title: z.string().describe("Page title"),
+      htmlContent: z.string().describe("HTML body content for the page (content inside <body> tags)"),
     },
     handler: (args: { userId: string; sectionId: string; title: string; htmlContent: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/sections/${args.sectionId}/pages`;
@@ -209,8 +209,8 @@ export const notesTools: ToolDefinition[] = [
     description: "Get the HTML content of a OneNote page",
     category: "notes",
     zodShape: {
-      userId: z.string(),
-      pageId: z.string(),
+      userId: z.string().describe("User ID or UPN (e.g. user@contoso.com)"),
+      pageId: z.string().describe("OneNote page ID"),
     },
     handler: (args: { userId: string; pageId: string }) => {
       const endpoint = `${BASE}/users/${args.userId}/onenote/pages/${args.pageId}/content`;

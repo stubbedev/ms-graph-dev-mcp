@@ -36,9 +36,9 @@ export const groupsTools: ToolDefinition[] = [
     description: "List all groups",
     category: "groups",
     zodShape: {
-      filter: z.string().optional(),
-      select: z.array(z.string()).optional(),
-      top: z.number().optional(),
+      filter: z.string().optional().describe("OData $filter expression (e.g. \"displayName eq 'MyGroup'\")"),
+      select: z.array(z.string()).optional().describe("Fields to return (e.g. ['id', 'displayName', 'mail'])"),
+      top: z.number().optional().describe("Maximum number of groups to return"),
     },
     handler: (args: { filter?: string; select?: string[]; top?: number }) => {
       const params: string[] = [];
@@ -67,8 +67,8 @@ export const groupsTools: ToolDefinition[] = [
     description: "Get a group by ID",
     category: "groups",
     zodShape: {
-      groupId: z.string(),
-      select: z.array(z.string()).optional(),
+      groupId: z.string().describe("Group object ID"),
+      select: z.array(z.string()).optional().describe("Fields to return (e.g. ['id', 'displayName', 'mail'])"),
     },
     handler: (args: { groupId: string; select?: string[] }) => {
       const selectParam = args.select?.length ? `?$select=${args.select.join(",")}` : "";
@@ -93,12 +93,12 @@ export const groupsTools: ToolDefinition[] = [
     description: "Create a new group",
     category: "groups",
     zodShape: {
-      displayName: z.string(),
-      mailNickname: z.string(),
-      description: z.string().optional(),
-      groupTypes: z.array(z.string()).optional(),
-      mailEnabled: z.boolean(),
-      securityEnabled: z.boolean(),
+      displayName: z.string().describe("Group display name"),
+      mailNickname: z.string().describe("Mail alias without the domain (e.g. 'mygroup')"),
+      description: z.string().optional().describe("Group description"),
+      groupTypes: z.array(z.string()).optional().describe("Group type — use ['Unified'] for Microsoft 365 groups, omit or use [] for security groups"),
+      mailEnabled: z.boolean().describe("Whether the group is mail-enabled (true for Microsoft 365 groups, false for security-only groups)"),
+      securityEnabled: z.boolean().describe("Whether the group is security-enabled (true for security groups and Microsoft 365 groups)"),
     },
     handler: (args: {
       displayName: string;
@@ -137,7 +137,7 @@ export const groupsTools: ToolDefinition[] = [
     description: "Delete a group",
     category: "groups",
     zodShape: {
-      groupId: z.string(),
+      groupId: z.string().describe("Group object ID to delete"),
     },
     handler: (args: { groupId: string }) => {
       const endpoint = `${BASE}/groups/${args.groupId}`;
@@ -161,7 +161,7 @@ export const groupsTools: ToolDefinition[] = [
     description: "List members of a group",
     category: "groups",
     zodShape: {
-      groupId: z.string(),
+      groupId: z.string().describe("Group object ID"),
     },
     handler: (args: { groupId: string }) => {
       const endpoint = `${BASE}/groups/${args.groupId}/members`;
@@ -185,8 +185,8 @@ export const groupsTools: ToolDefinition[] = [
     description: "Add a member to a group",
     category: "groups",
     zodShape: {
-      groupId: z.string(),
-      userId: z.string(),
+      groupId: z.string().describe("Group object ID to add the member to"),
+      userId: z.string().describe("User ID or UPN to add as a member (e.g. user@contoso.com)"),
     },
     handler: (args: { groupId: string; userId: string }) => {
       const endpoint = `${BASE}/groups/${args.groupId}/members/$ref`;
@@ -211,8 +211,8 @@ export const groupsTools: ToolDefinition[] = [
     description: "Remove a member from a group",
     category: "groups",
     zodShape: {
-      groupId: z.string(),
-      userId: z.string(),
+      groupId: z.string().describe("Group object ID to remove the member from"),
+      userId: z.string().describe("User ID or UPN to remove (e.g. user@contoso.com)"),
     },
     handler: (args: { groupId: string; userId: string }) => {
       const endpoint = `${BASE}/groups/${args.groupId}/members/${args.userId}/$ref`;
@@ -236,7 +236,7 @@ export const groupsTools: ToolDefinition[] = [
     description: "List owners of a group",
     category: "groups",
     zodShape: {
-      groupId: z.string(),
+      groupId: z.string().describe("Group object ID"),
     },
     handler: (args: { groupId: string }) => {
       const endpoint = `${BASE}/groups/${args.groupId}/owners`;
